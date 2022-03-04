@@ -72,14 +72,18 @@ where `[conll_input_file_path]` is the original conll data file, and `[conll_out
 ----------------------
 `predicate_extraction.py`
 
+TODO
 
 ----------------------
 `argument_prediction.py`
 
 
+
 ----------------------
 `evaluate.py`
 
+
+----------------------
 ## Task description and results
 
 ### Predicate extraction
