@@ -1,8 +1,10 @@
 # Semantic Role Labelling
+
 In this repository, our code can be found to implement a Semantic Role Labelling System.   
 We have created this code for the second assignment for the course NLP Technologies at the Vrije Universiteit Amsterdam.  
 We train our system on data from the Universal Proposition Banks dataset.   
 This readme consists of two parts. In the first part we present a description of the code and how to run it. In the second part we describe our task and present our results.  
+
  ----------------------
 ## Repositoty description
 
