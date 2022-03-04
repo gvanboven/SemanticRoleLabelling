@@ -127,5 +127,5 @@ To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005)
 
 #### References
 Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005). 
-Semantic role labelingusing different syntactic views.  
+Semantic role labelingusing different syntactic views.
 In Proceedings of the 43rd annual meeting of the association for computational linguistics (acl’05)(pp. 581–588)
