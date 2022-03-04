@@ -121,5 +121,11 @@ Where `'[conll_input_file_path]'` is the file  that contains the gold labels and
 ##### Feature extraction
 
 #### Machine Learning
+To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
 
 #### Results
+
+#### References
+Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005). 
+Semantic role labelingusing different syntactic views.  
+In Proceedings of the 43rd annual meeting of the association for computational linguistics (acl’05)(pp. 581–588)
