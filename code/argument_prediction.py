@@ -295,6 +295,8 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
+    print(argv)
+
     trainingfile = argv[1]
     testfile = argv[2]
     outfile_path = argv[3]
@@ -310,7 +312,8 @@ def main(argv=None):
         print(f"features that will be considered in the model are : {selected_features}")
     except:
         selected_features = list(feature_to_index.keys()) #if the selected features are not defined, use all of them
-        selected_features.remove('argument') # but of course take out the gold label       
+        selected_features.remove('argument') # but of course take out the gold label 
+
 
     print(f"start loading in data")
 
