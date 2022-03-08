@@ -8,14 +8,14 @@ This readme consists of two parts. In the first part we present a description of
 ----------------------
 ## Repository description
 
-This repository consists of 3 folders, which we will each describe. 
+This repository consists of 3 folders, which we will each describe.
 
 #### `.\data`
 This folder contains the train, dev and test data we use for our model.
 
 #### `.\models`
 This folder contains the W2V word embeddings model we use to encode tokens during training. This model is currently excluded because of its large size.    
-The model should thus be downloaded and placed in this folder in order for the code to work. The model can be downloaded from https://code.google.com/archive/p/word2vec/ 
+The model should thus be downloaded and placed in this folder in order for the code to work. The model can be downloaded from https://code.google.com/archive/p/word2vec/
 
 #### `.\code`
 
@@ -29,23 +29,22 @@ iii. trains a SVM classifier to predict the agruments, uses this model to make p
 For both evaluations, the results (in terms of precision, recall and F1 score) will be printed, both per class and for the entire dataset (both macro and micro average).
 
 This file can be called as follows:    
-`python .\main.py '[conll_train_file_path]', '[conll_test_file_path]' [number_of_included_rows] [selected features]` 
+`python .\main.py '[conll_train_file_path]', '[conll_test_file_path]' [number_of_included_rows] [selected features]`
 as for example:
 `'python main.py '../data/srl_univprop_en.train.conll' '../data/srl_univprop_en.dev.conll' 100'`
 Here the [conll_train_file_path] is the path to the conll training data, and [conll_test_file_path] is the path to the conll test data.   
 `[number_of_included_rows]` indicated the number of rows from that should be included in training and testing. This should be an integer. If all rows should be included in training and testing, the input for this argument should be `'all'`. The reason we included this argument is because the training dataset is very large and when using this dataset for training the argument prediction model it might take very long to train, or cause memory errors.    
-Finally, there is an optional feature `[selected features]`, which to allows to select a subset of the features we extract to be included in argument prediction. The features should be writting as a string of selected features separated by spaces, as in the example above. If this is not defined, the following features will be used (see the description for `feature_extraction.py` for further details on these features): `token_index`, `token`, `head_lemma`, `predicate_descendant`, `path_to_predicate_length`,  `pos`, `postag`, `prev_token`, `prev_pos`, `dependency`, `head_text`, `predicate_lemma`, `predicate_index`, `predicate_pos`, `predicate_dependency`. 
+Finally, there is an optional feature `[selected features]`, which to allows to select a subset of the features we extract to be included in argument prediction. The features should be writting as a string of selected features separated by spaces, as in the example above. If this is not defined, the following features will be used (see the description for `feature_extraction.py` for further details on these features): `token_index`, `token`, `head_lemma`, `predicate_descendant`, `path_to_predicate_length`,  `pos`, `postag`, `prev_token`, `prev_pos`, `dependency`, `head_text`, `predicate_lemma`, `predicate_index`, `predicate_pos`, `predicate_dependency`.
 
 ----------------------
 `feature_extraction.py` can be used to extract features from a Universal Proposition Banks dataset SRL conll file. The code carries out two steps :   
-i. It restructes the data. In the original datasets, tokens have their own rows, sentences are separated by empty lines, and predicates and their arguments are presented in columns. 
+i. It restructes the data. In the original datasets, tokens have their own rows, sentences are separated by empty lines, and predicates and their arguments are presented in columns.
 In the restructured version of the data, the empty lines are taken out, and each token-predicate combination gets its own row. This means that if a sentence contains 10 tokens and 3 predicates, this sentence will be represented over 10 * 3 = 30 rows.     
 ii. It extracts additional features for the tokens and the predicates, and adds these as columns. More specifically, we extract the following features:  
 
 * `sent_index` - the index of the sentence
-* `token_index` - the index of the token 
+* `token_index` - the index of the token
 * `token` - the token itself
-* `head_lemma` - the lemma of the head of the token 
 * `predicate_descendant` - binary feature, whether the token is a descendant of the predicate or not
 * `path_to_predicate_length`- the length of the dependency path from the token to the predicate. If there is no path, the value is 100
 * `lemma` - the lemma of the token, extracted by Spacy
@@ -65,15 +64,17 @@ ii. It extracts additional features for the tokens and the predicates, and adds 
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_input_file_path]' '[conll_output_file_path]'`    
 as for instance      
-`python feature_extraction.py '../data/srl_univprop_en.dev.conll' '../data/srl_univprop_en.dev_features.conll'` 
+`python feature_extraction.py '../data/srl_univprop_en.dev.conll' '../data/srl_univprop_en.dev_features.conll'`
 where `[conll_input_file_path]` is the original conll data file, and `[conll_output_file_path]` is the path where the extracted data will be saved.
 
 
 ----------------------
 `predicate_extraction.py`
 
-TODO
+This file performs the predicate prediction task using a rule-based and a machine learning method. It creates two new files for the processed train and test datasets in the same path as the original ones. The datasets need to be processed to serve the task. It prints the distribution of predicate features on which the rule-based approached is based. For the machine learning approach, it provide the option of representing the tokens as word embeddings. For that the language model: `GoogleNews-vectors-negative300.bin.gz`, needs to be downloaded and loaded using gensim package. It prints the evaluation (accuracy metric) of the rule based approach, as well as the full classification report for the machine learning approach.
 
+This file and be run either within the main pipeline or separately. The independent execution needs to be run along with the path of the original train file and tha of the test/dev file as follows:
+- `python predicate_extraction.py '<path to original train file>' '<path to original test/dev file>'`
 ----------------------
 `argument_prediction.py`
 
@@ -81,7 +82,7 @@ This file creates and trains an SVM on the training data, makes predictions on t
 
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_train_file_path]' '[conll_test_file_path]' '[conll_output_file_path]' [number_of_included_rows] [selected features]`    
-as for instance 
+as for instance
 `python argument_prediction.py '../data/srl_univprop_en.train_features.conll' '../data/srl_univprop_en.test_features.conll' '../data/srl_univprop_en.test_predictions.conll'  1000  "token head_lemma predicate_lemma"`
 where `[conll_train_file_path]` is the conll training data, `[conll_test_file_path]` is the conll test data, and `[conll_output_file_path]` is the path to where the predictions will be saved.
 `[number_of_included_rows]` indicated the number of rows from that should be included in training and testing. This should be an integer. If all rows should be included in training and testing, the input for this argument should be `'all'`. The reason we included this argument is because the training dataset is very large and when using this dataset for training the argument prediction model it might take very long to train, or cause memory errors.    
@@ -90,35 +91,45 @@ Finally, there is an optional feature `[selected features]`, which to allows to 
 ----------------------
 `evaluate.py`
 
-This file evaluates machine predictions in a conll file wich contains both gold labels and machine annotations. 
+This file evaluates machine predictions in a conll file wich contains both gold labels and machine annotations.
 This file prints out the confusion matrix and the overall macro precision, recall and F1, as well as the micro F1 score.
-Aditionally, the precision, recall and F1 are computed per class, and a table is printed out that gives an overview of these scores.
+Additionally, the precision, recall and F1 are computed per class, and a table is printed out that gives an overview of these scores.
 
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_input_file_path]' [gold_index] [predictions_index]`    
-as for instance 
+as for instance
 `python evaluate.py '../data/SRL_argument_test_predictions.conll' -2 -1`
 Where `'[conll_input_file_path]'` is the file  that contains the gold labels and the predictions, `[gold_index]` the index of the column in which the gold annotations can be found, and `[predictions_index]` is the index of the column that contains the machine predictions.
 
 ----------------------
-## Task description and results
+## Task description and results for the different tasks
 
-### Predicate extraction
+### PREDICATE EXTRACTION
 
-#### Task description
+#### Task description and implementation sequence
+Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.
 
+- It processes the original train and test/dev datasets, cleans them up and extracts new features similar to the argument prediction task below, only that the dataset has a different format and the predicates are included in the rows instead of been given a separate column. The features (old and new), which are extracted with the spacy library include the following: sentence_id, token_id (position in the sentence), token, lemma, PoS label, PoS tag, previous token, previous PoS, dependency label, the head of the token(represented as token). Finally the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.
+- It extracts the rows of the train and test datasets into lists of lines, and prunes them by extracting those data points that are unlikely to be predicates, namely punctuation tokens and numerals. The numerals are located either with the string function isalnum, or the CD pos_tag representing cardinal numbers.
+- For the rule based method it prints out the distribution of the labels for each feature category. This will help us decide the rules for determining whether a token is a predicate. We decide to use the majority labels for the PoS and the dependency categories, since in those categories there is greater imbalance in the distribution of labels, which makes the distinguishing of predicates easier. In particular, we extract the tokens that satisfy at leas one of the following conditions. They have a PoS label "VERB"/'AUX' or/and a dependency label of "ROOT".
+- For the machine learning method we provide two options, both of which use SVM to train the classifier. The first is without word-embeddings, where we only include the features extracted above and a linear kerne. The second uses word-embeddings to represent tokens, combined with other sparse features(extracted above) and a gaussian kernel.  
 #### Results
+-For the evaluation of the rule based method accuracy is used as a metric and has a value of 0.90.
+-For the evaluation of the Machine Learning classifier a classification report is used, with the recall, precision and f-score for each label, as well as their averages.
+      * The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.
+-To overcome the imbalance issue and in general improve the results a series of experiments and a feature ablation is carried out. The results are described below, however, to avoid a long execution, only the best ML model is included in the final code.
+      * We change the class_weight parameter to "balanced" during the instantiation of the classifier. However the scores remain the same for both options, only that now the majority class provides 0(for the linear) and very low(for the gaussian) scores.
+      * We try oversampling the minority class using the imblearn package and we remove the specification of the class_weight parameter. Now the two classes have the same number of datapoints. The results of the linear kernel remain the same, but those of the gaussian one improves slightly.
+      * Given the above results we decide to perform feature ablation only to the classifier using word-embeddings. We find that the best results are produced when combine word-embeddings with the PoS and dependency label features. For the non-predicate class we have a precision of 0.5. but a really low recall at 0.003. For the predicates class precision is at 0.5, but recall is extremely high at 0.9.
+-Conclusions: The performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
 
 
-### Argument classification
+
+### ARGUMENT CLASSIFICATION
 
 #### Task description
 
-#### Features
-
-##### Description
-
-##### Feature extraction
+#### Used Features and Further Feature Extraction
 
 #### Machine Learning
 To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
@@ -126,6 +137,6 @@ To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005)
 #### Results
 
 #### References
-Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005). 
+Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005).
 Semantic role labelingusing different syntactic views.
 In Proceedings of the 43rd annual meeting of the association for computational linguistics (acl’05)(pp. 581–588)
