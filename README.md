@@ -138,16 +138,16 @@ To perform this task we use both a rule-based approach and machine learning meth
 
 * We processes the original train and test/dev datasets, clean them up and extract new features using the Spacy library. In our new format, each token gets its own row, where further the following information from the gold data is represented: 
   * the sentence id
-  * the token id (i.e. position in the sentence)
-  Continuing, the followng features are extracted using Spacy and added to the dataset:
+  * the token id (i.e. position in the sentence)      
+Continuing, the followng features are extracted using Spacy and added to the dataset:
   * the lemma
   * the PoS label
   * the PoS tag
   * the prevous token
   * the PoS of the previous token
   * the dependency label
-  * the head of the token (represented as a token)
-  Finally, the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.      
+  * the head of the token (represented as a token)     
+Finally, the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.      
     
 * We extract the rows of the train and test datasets into lists of lines, and prune them to account for the imbalances in the dataset (the percentage of non-predicate labels is far greater than that of predicate ones) by extracting those data points that are unlikely to be predicates, namely punctuation tokens (such as "&") and numerals (e.g. "99"). We find the numerals either with the python function `isalnum`, or by the PoS tag `CD` which represents cardinal numbers.      
 * For the rule based method we print out the distribution of the labels for each feature category, to get an insight into the labels that are the most common for predicates. This will help us decide the rules for determining whether a token is a predicate or not. We notice there is a greater imbalance in the distribution of labels for the PoS and the dependency categories, so we decide to use the majority labels for those features, since it makes the distinguishing of predicates easier. In particular, we extract the tokens to be predicates that satisfy at leas one of the following conditions: They have a PoS label `VERB`/`AUX` or/and a dependency label of `ROOT`. A table with the most frequent labels for the three features (PoS, Dep, PoS tag) presented in a descending order can be found below.     
