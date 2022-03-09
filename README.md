@@ -133,12 +133,24 @@ Where `'[conll_input_file_path]'` is the file  that contains the gold labels and
 #### Task description
 Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.      
 
-# Implementation sequence.
-To perform this task we use a rule-based approach and machine learning method. Below are the steps used for data preprocessing, feature extraction, training and testing, followed by a Results section where the different approaches are evaluated and compared.     
+#### Implementation sequence.
+To perform this task we use both a rule-based approach and machine learning method. Below we outline the steps we take for data preprocessing, feature extraction, training and testing, followed by a Results section where the different approaches are evaluated and compared.     
 
-* We processes the original train and test/dev datasets, clean them up and extract new features similar to the argument prediction task below, only that the dataset has a different format and the predicates are included in the rows instead of been given a separate column. The features (old and new), which are extracted with the spacy library include the following: sentence_id, token_id (position in the sentence), token, lemma, PoS label, PoS tag, previous token, previous PoS, dependency label, the head of the token(represented as token). Finally the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.      
-* We extract the rows of the train and test datasets into lists of lines, and prune them to account for the imbalances in the dataset (the percentage of non-predicate labels is far greater than that of predicate ones) by extracting those data points that are unlikely to be predicates, namely punctuation tokens and numerals. The numerals are located either with the string function isalnum, or the CD pos_tag representing cardinal numbers.      
-* For the rule based method we print out the distribution of the labels for each feature category. This will help us decide the rules for determining whether a token is a predicate. We decide to use the majority labels for the PoS and the dependency categories, since in those categories there is greater imbalance in the distribution of labels, which makes the distinguishing of predicates easier. In particular, we extract the tokens that satisfy at leas one of the following conditions: They have a PoS label `VERB`/`AUX` or/and a dependency label of `ROOT`. A table with the most frequent labels for the three features (PoS, Dep, PoS tag) presented in a descending order can be found below.     
+* We processes the original train and test/dev datasets, clean them up and extract new features using the Spacy library. In our new format, each token gets its own row, where further the following information from the gold data is represented: 
+  * the sentence id
+  * the token id (i.e. position in the sentence)
+  Continuing, the followng features are extracted using Spacy and added to the dataset:
+  * the lemma
+  * the PoS label
+  * the PoS tag
+  * the prevous token
+  * the PoS of the previous token
+  * the dependency label
+  * the head of the token (represented as a token)
+  Finally, the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.      
+    
+* We extract the rows of the train and test datasets into lists of lines, and prune them to account for the imbalances in the dataset (the percentage of non-predicate labels is far greater than that of predicate ones) by extracting those data points that are unlikely to be predicates, namely punctuation tokens (such as "&") and numerals (e.g. "99"). We find the numerals either with the python function `isalnum`, or by the PoS tag `CD` which represents cardinal numbers.      
+* For the rule based method we print out the distribution of the labels for each feature category, to get an insight into the labels that are the most common for predicates. This will help us decide the rules for determining whether a token is a predicate or not. We notice there is a greater imbalance in the distribution of labels for the PoS and the dependency categories, so we decide to use the majority labels for those features, since it makes the distinguishing of predicates easier. In particular, we extract the tokens to be predicates that satisfy at leas one of the following conditions: They have a PoS label `VERB`/`AUX` or/and a dependency label of `ROOT`. A table with the most frequent labels for the three features (PoS, Dep, PoS tag) presented in a descending order can be found below.     
 
 | PoS  | Dep   | PoS_tags |
 |------|-------|----------|
@@ -147,9 +159,10 @@ To perform this task we use a rule-based approach and machine learning method. B
 | NOUN | aux   | VBZ      |
 | ADJ  | ccomp | NN       |
 
-* For the machine learning method we provide two options, both of which use SVM to train the classifier. The first is without word-embeddings, where we only include the features extracted above and a linear kerne. The second uses word-embeddings to represent tokens, combined with other sparse features(extracted above) and a gaussian kernel.           
+* For the machine learning method we provide two options, both of which use a Support Vector Machine (SVM) to train the classifier. The first is without word-embeddings, where we only include the features extracted above, and use a linear kernel. The second uses word-embeddings to represent tokens, combined with other the sparse features(extracted above) and a gaussian kernel.     
+
 #### Results
-* For the evaluation of the rule based method a classification report is used with the recall, precision and f-score for each label, as well as their averages. It is observed that the f-score of the predicate class is 0.2 points less than that of the major class since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since it the feature overlap between the two classes would be too high. The evaluation table is found below:      
+* For the evaluation of the rule based method a classification report is used with the recall, precision and F-score for each label, as well as their averages. It is observed that the F-score of the predicate class is 0.2 points lower than that of the non-predicate class. This makes sense, since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since the feature overlap between the two classes would be higher. The evaluation table is found below:      
 
               precision    recall  f1-score   support
 
@@ -161,7 +174,7 @@ To perform this task we use a rule-based approach and machine learning method. B
 weighted avg  0.9078077 0.9097877 0.9084896     11872
 
 * For the evaluation of the Machine Learning classifier a classification report is used, with the recall, precision and f-score for each label, as well as their averages.      
-      - The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
+  * The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
 * To overcome the imbalance issue and in general improve the results a series of experiments and a feature ablation is carried out. The results are described below, however, to avoid a long execution, only the best ML model is included in the final code.     
       - We change the class_weight parameter to "balanced" (default = None) during the instantiation of the classifier, to account for the imbalanced dataset. This parameter performs the following calculation: n_samples / (n_classes * np.bincount(y). However the scores remain the same for both options, only that now the majority class provides 0 scores for the linear and very low scored for the gaussian model.    
       - We try oversampling the minority class using the imblearn package and we remove the specification of the class_weight parameter. Now the two classes have the same number of datapoints. The results of the linear kernel remain the same, but those of the gaussian one improves slightly.     
