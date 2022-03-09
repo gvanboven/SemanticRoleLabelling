@@ -164,14 +164,13 @@ Finally, the last column of the processed datasets has the value 1 if the token 
 #### Results
 * For the evaluation of the rule based method a classification report is used with the recall, precision and F-score for each label, as well as their averages. It is observed that the F-score of the predicate class is 0.2 points lower than that of the non-predicate class. This makes sense, since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since the feature overlap between the two classes would be higher. The evaluation table is found below:      
 
-              precision    recall  f1-score   support
-
-           0  0.9345648 0.9527609 0.9435752      9399
-           1  0.8061135 0.7464618 0.7751417      2473
-
-    accuracy                      0.9097877     11872
-   macro avg  0.8703392 0.8496114 0.8593584     11872
-weighted avg  0.9078077 0.9097877 0.9084896     11872
+|              | precision | recall    |  f1-score | support |
+|--------------|-----------|-----------|:---------:|:-------:|
+| 0            | 0.9345648 | 0.9527609 | 0.9435752 |   9399  |
+| 1            | 0.8061135 | 0.7464618 | 0.7751417 |   2473  |
+| accuracy     |           |           | 0.9097877 |  11872  |
+| macro avg    | 0.8703392 | 0.8496114 | 0.8593584 |  11872  |
+| weighted avg | 0.9078077 | 0.9097877 | 0.9084896 |  11872  |
 
 * For the evaluation of the Machine Learning classifier a classification report is used, with the recall, precision and f-score for each label, as well as their averages.      
   * The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
@@ -182,14 +181,13 @@ weighted avg  0.9078077 0.9097877 0.9084896     11872
 
       Training and evaluation of SVM classifier...
 
-              precision    recall  f1-score   support
-
-           0  0.5686275 0.0030854 0.0061376      9399
-           1  0.5001867 0.9976593 0.6663114      9399
-
-    accuracy                      0.5003724     18798
-   macro avg  0.5344071 0.5003724 0.3362245     18798
-weighted avg  0.5344071 0.5003724 0.3362245     18798
+|              | precision | recall    | f1-score  | support |
+|--------------|-----------|-----------|-----------|:-------:|
+| 0            | 0.5686275 | 0.0030854 | 0.0061376 |   9399  |
+| 1            | 0.5001867 | 0.9976593 | 0.6663114 |   9399  |
+| accuracy     |           |           | 0.5003724 |  18798  |
+| macro avg    | 0.5344071 | 0.5003724 | 0.3362245 |  18798  |
+| weighted avg | 0.5344071 | 0.5003724 | 0.3362245 |  18798  |
 
 In conclusion, the performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the ML systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
 
