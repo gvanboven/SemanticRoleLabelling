@@ -140,6 +140,7 @@ To perform this task we use both a rule-based approach and machine learning meth
   * the sentence id
   * the token id (i.e. position in the sentence)      
 Continuing, the followng features are extracted using Spacy and added to the dataset:
+  * the token
   * the lemma
   * the PoS label
   * the PoS tag
@@ -163,7 +164,7 @@ A table with the most frequent labels (presented in a descending order) for the 
 | NOUN | aux   | VBZ      |
 | ADJ  | ccomp | NN       |
 
-* For the machine learning method we provide two options, both of which use a Support Vector Machine (SVM) to train the classifier. The first is without word-embeddings, where we only include the features extracted above, and use a linear kernel. The second uses word-embeddings to represent tokens, combined with other the sparse features(extracted above) and a gaussian kernel.     
+* For the machine learning method we provide two options, both of which use a Support Vector Machine (SVM) to train the classifier. The first is without word-embeddings, where we only include the features extracted above, and use a linear kernel because the dimensionality of the features is very high already. More precisely, this means that we represent the token and all the other features as one-hot encoded and concatenate the vectors (except for the sentence id and the token id, which are integers). The second uses word-embeddings to represent tokens, combined with the other sparse features (extracted above) except for the tokens and lemmas and a gaussian kernel because the dimensionality of the features is reduced here (since the word-embeddings are more dense). Because we expect the word-embeddings to capture more information than one-hot encodings, we expect the second model to outperform the first.    
 
 #### Results
 * For the evaluation of the rule based method a classification report is used with the recall, precision and F-score for each label, as well as their averages. It is observed that the F-score of the predicate class is 0.2 points lower than that of the non-predicate class. This makes sense, since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since the feature overlap between the two classes would be higher. The evaluation table is found below:      
@@ -176,12 +177,13 @@ A table with the most frequent labels (presented in a descending order) for the 
 | macro avg    | 0.8703392 | 0.8496114 | 0.8593584 |  11872  |
 | weighted avg | 0.9078077 | 0.9097877 | 0.9084896 |  11872  |
 
-* For the evaluation of the Machine Learning classifier a classification report is used, with the recall, precision and f-score for each label, as well as their averages.      
-  * The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
-* To overcome the imbalance issue and in general improve the results a series of experiments and a feature ablation is carried out. The results are described below, however, to avoid a long execution, only the best ML model is included in the final code.     
-  * We change the `class_weight` parameter to `balanced` (default = `None`) during the instantiation of the classifier, to account for the imbalanced dataset. This parameter performs the following calculation: `n_samples / (n_classes * np.bincount(y)`. However the scores remain the same for both options, only that now the majority class provides 0 scores for the linear and very low scored for the gaussian model.    
-  * We try oversampling the minority class using the `imblearn` package and we remove the specification of the `class_weight` parameter. Now the two classes have the same number of datapoints. The results of the linear kernel remain the same, but those of the gaussian one improves slightly.     
-  * Given the above results we decide to perform feature ablation only to the classifier using word-embeddings. We find that the best results are produced when we combine word-embeddings with the PoS and dependency label features. For the non-predicate class we obtain a precision of 0.5, but a really low recall at 0.003. For the predicates class precision is at 0.5, but recall is very high, at 0.9. The evaluation table for this last model (the one with the best results among ML classifier) is found below.     
+* For the evaluation of the Machine Learning classifiers we again consider the recall, precision and f-score for each label, as well as their averages.   
+
+  * The SVM classifier without word embeddings + linear kernel returns a 0 score for the predicate class. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better, but still returning a very low score for the predicate class.  This is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
+  * To overcome the imbalance issue and in general improve the results a series of experiments and a feature ablation is carried out. The results are described below, however, to avoid a long execution, only the best ML model is included in the final code.     
+    * We change the `class_weight` parameter to `balanced` (default = `None`) during the instantiation of the classifier, which can be used to account for imbalanced datasets. However the scores remain the same for both classifiers, with the only difference that now the non-predicate class provides 0 scores for the linear and very low scores for the gaussian model (whereas before it was the predicate-class that yielded a very low performance).    
+    * We try oversampling the minority class using the `imblearn` package and we remove the specification of the `class_weight` parameter. Now the two classes have the same number of datapoints. The results of the linear kernel remain the same, but those of the gaussian one improves slightly.     
+    * Given the above results we decide to perform feature ablation only to the classifier using word-embeddings. We find that the best results are produced when we combine word-embeddings with only the PoS and dependency label features. For the non-predicate class we obtain a precision of 0.5, but a really low recall at 0.003. For the predicates class precision is at 0.5, but recall is very high, at 0.9. The evaluation table for this last model (the one with the best results among ML classifier) is found below.     
 
 Training and evaluation of the best SVM classifier (word-embeddings + PoS + dependency label):
 
