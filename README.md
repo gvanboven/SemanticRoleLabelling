@@ -1,3 +1,27 @@
+README.md
+Wie heeft toegang
+V
+G
+X
+Systeemeigenschappen
+Type
+Tekst
+Grootte
+17 KB
+Gebruikte opslag
+17 KB
+Locatie
+SRL
+Eigenaar
+Vicky Kyrmanidi
+Gewijzigd
+8 mrt. 2022 door Vicky Kyrmanidi
+Geopend
+09:37 door mij
+Gemaakt
+8 mrt. 2022
+Voeg een beschrijving toe
+Kijkers kunnen downloaden
 # Semantic Role Labelling
 
 In this repository, our code can be found to implement a Semantic Role Labelling System.   
@@ -71,10 +95,10 @@ where `[conll_input_file_path]` is the original conll data file, and `[conll_out
 ----------------------
 `predicate_extraction.py`
 
-This file performs the predicate prediction task using a rule-based and a machine learning method. It creates two new files for the processed train and test datasets in the same path as the original ones. The datasets need to be processed to serve the task. It prints the distribution of predicate features on which the rule-based approached is based. For the machine learning approach, it provide the option of representing the tokens as word embeddings. For that the language model: `GoogleNews-vectors-negative300.bin.gz`, needs to be downloaded and loaded using gensim package. It prints the evaluation (accuracy metric) of the rule based approach, as well as the full classification report for the machine learning approach.
+This file performs the predicate prediction task using a rule-based and a machine learning method. It creates two new files for the processed train and test datasets in the same path as the original ones (The datasets need to be processed to serve the task). It prints the distribution of predicate features on which the rule-based approached is based. For the machine learning approach, it providesthe option of representing the tokens as word embeddings. For that the language model: `GoogleNews-vectors-negative300.bin.gz`, needs to be downloaded and loaded using gensim package. Finally, it prints the evaluation  of the rule based approach and the machine learning approach in a full classification report produced using the `sklearn` package.
 
-This file and be run either within the main pipeline or separately. The independent execution needs to be run along with the path of the original train file and tha of the test/dev file as follows:
-- `python predicate_extraction.py '<path to original train file>' '<path to original test/dev file>'`
+This file and be run either within the main pipeline or separately. The independent execution needs to be run along with the path of the original train file and that of the test/dev file as follows:
+- `python predicate_extraction.py '[path to original train file]' '[path to original test/dev file]'`
 ----------------------
 `argument_prediction.py`
 
@@ -106,22 +130,55 @@ Where `'[conll_input_file_path]'` is the file  that contains the gold labels and
 
 ### PREDICATE EXTRACTION
 
-#### Task description and implementation sequence
-Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.       
+#### Task description
+Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.      
 
-*  It processes the original train and test/dev datasets, cleans them up and extracts new features similar to the argument prediction task below, only that the dataset has a different format and the predicates are included in the rows instead of been given a separate column. The features (old and new), which are extracted with the spacy library include the following: sentence_id, token_id (position in the sentence), token, lemma, PoS label, PoS tag, previous token, previous PoS, dependency label, the head of the token(represented as token). Finally the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.     
-* It extracts the rows of the train and test datasets into lists of lines, and prunes them by extracting those data points that are unlikely to be predicates, namely punctuation tokens and numerals. The numerals are located either with the string function isalnum, or the CD pos_tag representing cardinal numbers.     
-* For the rule based method it prints out the distribution of the labels for each feature category. This will help us decide the rules for determining whether a token is a predicate. We decide to use the majority labels for the PoS and the dependency categories, since in those categories there is greater imbalance in the distribution of labels, which makes the distinguishing of predicates easier. In particular, we extract the tokens that satisfy at leas one of the following conditions. They have a PoS label "VERB"/'AUX' or/and a dependency label of "ROOT".    
-* For the machine learning method we provide two options, both of which use SVM to train the classifier. The first is without word-embeddings, where we only include the features extracted above and a linear kerne. The second uses word-embeddings to represent tokens, combined with other sparse features(extracted above) and a gaussian kernel.  
+# Implementation sequence.
+To perform this task we use a rule-based approach and machine learning method. Below are the steps used for data preprocessing, feature extraction, training and testing, followed by a Results section where the different approaches are evaluated and compared.     
+
+* We processes the original train and test/dev datasets, clean them up and extract new features similar to the argument prediction task below, only that the dataset has a different format and the predicates are included in the rows instead of been given a separate column. The features (old and new), which are extracted with the spacy library include the following: sentence_id, token_id (position in the sentence), token, lemma, PoS label, PoS tag, previous token, previous PoS, dependency label, the head of the token(represented as token). Finally the last column of the processed datasets has the value 1 if the token is predicate and 0 if not.      
+* We extract the rows of the train and test datasets into lists of lines, and prune them to account for the imbalances in the dataset (the percentage of non-predicate labels is far greater than that of predicate ones) by extracting those data points that are unlikely to be predicates, namely punctuation tokens and numerals. The numerals are located either with the string function isalnum, or the CD pos_tag representing cardinal numbers.      
+* For the rule based method we print out the distribution of the labels for each feature category. This will help us decide the rules for determining whether a token is a predicate. We decide to use the majority labels for the PoS and the dependency categories, since in those categories there is greater imbalance in the distribution of labels, which makes the distinguishing of predicates easier. In particular, we extract the tokens that satisfy at leas one of the following conditions: They have a PoS label `VERB`/`AUX` or/and a dependency label of `ROOT`. A table with the most frequent labels for the three features (PoS, Dep, PoS tag) presented in a descending order can be found below.     
+
+| PoS  | Dep   | PoS_tags |
+|------|-------|----------|
+| VERB | ROOT  | VB       |
+| AUX  | conj  | VBP      |
+| NOUN | aux   | VBZ      |
+| ADJ  | ccomp | NN       |
+
+* For the machine learning method we provide two options, both of which use SVM to train the classifier. The first is without word-embeddings, where we only include the features extracted above and a linear kerne. The second uses word-embeddings to represent tokens, combined with other sparse features(extracted above) and a gaussian kernel.           
 #### Results
-* For the evaluation of the rule based method accuracy is used as a metric and has a value of 0.90.     
+* For the evaluation of the rule based method a classification report is used with the recall, precision and f-score for each label, as well as their averages. It is observed that the f-score of the predicate class is 0.2 points less than that of the major class since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since it the feature overlap between the two classes would be too high. The evaluation table is found below:      
+
+              precision    recall  f1-score   support
+
+           0  0.9345648 0.9527609 0.9435752      9399
+           1  0.8061135 0.7464618 0.7751417      2473
+
+    accuracy                      0.9097877     11872
+   macro avg  0.8703392 0.8496114 0.8593584     11872
+weighted avg  0.9078077 0.9097877 0.9084896     11872
+
 * For the evaluation of the Machine Learning classifier a classification report is used, with the recall, precision and f-score for each label, as well as their averages.      
-      - The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.     
+      - The recall score for the precision label is 1, while the precision one is 0.5. The SVM classifier without word embeddings + linear kernel returns 0 score for the minority label. The SVM classifier with word-embeddings and a gaussian kernel performs slightly better returning a very low score for the minority class.  When is due to the bias caused by the imbalanced distribution of the labels. The score does not improve even after the pruning of the datasets.      
 * To overcome the imbalance issue and in general improve the results a series of experiments and a feature ablation is carried out. The results are described below, however, to avoid a long execution, only the best ML model is included in the final code.     
-      - We change the class_weight parameter to "balanced" during the instantiation of the classifier. However the scores remain the same for both options, only that now the majority class provides 0(for the linear) and very low(for the gaussian) scores.      
+      - We change the class_weight parameter to "balanced" (default = None) during the instantiation of the classifier, to account for the imbalanced dataset. This parameter performs the following calculation: n_samples / (n_classes * np.bincount(y). However the scores remain the same for both options, only that now the majority class provides 0 scores for the linear and very low scored for the gaussian model.    
       - We try oversampling the minority class using the imblearn package and we remove the specification of the class_weight parameter. Now the two classes have the same number of datapoints. The results of the linear kernel remain the same, but those of the gaussian one improves slightly.     
-      - Given the above results we decide to perform feature ablation only to the classifier using word-embeddings. We find that the best results are produced when combine word-embeddings with the PoS and dependency label features. For the non-predicate class we have a precision of 0.5. but a really low recall at 0.003. For the predicates class precision is at 0.5, but recall is extremely high at 0.9.    
-* Conclusions: The performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
+      - Given the above results we decide to perform feature ablation only to the classifier using word-embeddings. We find that the best results are produced when combine word-embeddings with the PoS and dependency label features. For the non-predicate class we have a precision of 0.5. but a really low recall at 0.003. For the predicates class precision is at 0.5, but recall is extremely high at 0.9. The evaluation table for this last model (the one with the best results among ML classifier) is found below.     
+
+      Training and evaluation of SVM classifier...
+
+              precision    recall  f1-score   support
+
+           0  0.5686275 0.0030854 0.0061376      9399
+           1  0.5001867 0.9976593 0.6663114      9399
+
+    accuracy                      0.5003724     18798
+   macro avg  0.5344071 0.5003724 0.3362245     18798
+weighted avg  0.5344071 0.5003724 0.3362245     18798
+
+In conclusion, the performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the ML systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
 
 
 
