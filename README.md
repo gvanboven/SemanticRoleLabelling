@@ -44,9 +44,9 @@ For both task we had to preprocess the data. The steps we took in order to do th
 #### Task description
 Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.      
 
-#### Implementation sequence.
 To perform this task we use both a rule-based approach and machine learning method. Below we outline the steps we take for data preprocessing, feature extraction, training and testing, followed by a Results section where the different approaches are evaluated and compared.     
 
+#### Implementation sequence.
 * We processes the original train and test/dev datasets, clean them up and extract new features using the Spacy library. In our new format, each token gets its own row, where further the following information from the gold data is represented: 
   * the sentence id
   * the token id (i.e. position in the sentence)      
@@ -63,7 +63,8 @@ Finally, the last column of the processed datasets has the value 1 if the token 
     
 * We extract the rows of the train and test datasets into lists of lines, and prune them to account for the imbalances in the dataset (the percentage of non-predicate labels is far greater than that of predicate ones) by extracting those data points that are unlikely to be predicates, namely punctuation tokens (such as "&") and numerals (e.g. "99"). 
 
-* For the rule based method we must define the rules manually. In order to do this, we print out the distribution of the labels for each feature category for the tokens that are predicates, to get an insight into the labels that are the most common for predicates. This will help us decide the rules for determining whether a token is a predicate or not.       
+#### Rule-based approach
+For the rule based method we must define the rules manually. In order to do this, we print out the distribution of the labels for each feature category for the tokens that are predicates, to get an insight into the labels that are the most common for predicates. This will help us decide the rules for determining whether a token is a predicate or not.       
 We notice there is a greater imbalance in the distribution of labels for the PoS and the dependency categories compared to the other feature categories: for instance, these is a very high number of predicates with the PoS `VERB` and `AUX`, while the number of predicates with other PoS labels is much lower. For this reason, we decide to use the majority labels for those features, since it makes the distinguishing of predicates easier. **In particular, we extract the tokens to be predicates that satisfy at least one of the following conditions: They have a PoS label `VERB`/`AUX` or/and the dependency label `ROOT`.**       
 
 A table with the most frequent labels (presented in a descending order) for the features PoS, Dependenpency label (Dep) and PoS tag (PoS_tags) of datapoints that represent predicates in the dataset, can be found below.     
@@ -75,7 +76,8 @@ A table with the most frequent labels (presented in a descending order) for the 
 | NOUN | aux   | VBZ      |
 | ADJ  | ccomp | NN       |
 
-* For the machine learning method we provide two options, both of which use a Support Vector Machine (SVM) to train the classifier. The first is without word-embeddings, where we only include the features extracted above, and use a linear kernel because the dimensionality of the features is very high already. More precisely, this means that we represent the token and all the other features as one-hot encoded and concatenate the vectors (except for the sentence id and the token id, which are integers). The second uses word-embeddings to represent tokens, combined with the other sparse features (extracted above) except for the tokens and lemmas and a gaussian kernel because the dimensionality of the features is reduced here (since the word-embeddings are more dense). Because we expect the word-embeddings to capture more information than one-hot encodings, we expect the second model to outperform the first.    
+#### Machine learning approach
+For the machine learning method we provide two options, both of which use a Support Vector Machine (SVM) to train the classifier. The first is without word-embeddings, where we only include the features extracted above, and use a linear kernel because the dimensionality of the features is very high already. More precisely, this means that we represent the token and all the other features as one-hot encoded and concatenate the vectors (except for the sentence id and the token id, which are integers). The second uses word-embeddings to represent tokens, combined with the other sparse features (extracted above) except for the tokens and lemmas and a gaussian kernel because the dimensionality of the features is reduced here (since the word-embeddings are more dense). Because we expect the word-embeddings to capture more information than one-hot encodings, we expect the second model to outperform the first.    
 
 #### Results
 * For the evaluation of the rule based method a classification report is used with the recall, precision and F-score for each label, as well as their averages. It is observed that the F-score of the predicate class is 0.2 points lower than that of the non-predicate class. This makes sense, since the rules we define do not account for all the predicates in the dataset. If we included more rules, then the recall of the minor class would probably be better but the precision would drop, since the feature overlap between the two classes would be higher. The evaluation table is found below:      
@@ -106,6 +108,8 @@ Training and evaluation of the best SVM classifier (word-embeddings + PoS + depe
 | macro avg    | 0.5344071 | 0.5003724 | 0.3362245 |  18798  |
 | weighted avg | 0.5344071 | 0.5003724 | 0.3362245 |  18798  |
 
+
+#### Conclusion
 In conclusion, the performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the ML systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
 
 
