@@ -35,12 +35,12 @@ From this dataset, we take a train, dev and test dataset, which are all in Engli
 #### Task description
 We can consider the task to consist of two steps: (i) finding the predicates present in a given sentence, and (ii) extracting and classifying the corresponding arguments for each predicate. 
 In this project, we split up these two tasks, and evaluate the outputs separately with the gold data. More precisely, in taks (i) we implement a rule-based and a machine-learning based predicate extraction method, and compare their outputs to the predicates in the gold data. For this task we must keep in mind that the data is very skewed: the dataset consists of much more non-predicate tokens than predicates.      
-Continuing, we approach task (ii) with a machine learning method using a Support Vector Machine. Here, we use all the tokens as input, together with the respective predicate and additional features that we extract, and aim to predict what argument label belongs to the token. We evaluate our results again against the gold data. This thus means that we do **not** use our outputs for task (i) to train task (ii), rather we include the gold-predicates in task (ii). This means that our scores for task (ii) overestimates the actual scores, as in reality here, our scores for task (ii) can only be as good as our best score for task (i). Again for this task, it is important that we keep in mind that the data is skewed towards non-argument tokens. Finally, for the second task we also implement a neural network using AllenNLP. 
+Continuing, we approach task (ii) with a machine learning method using a Support Vector Machine. Here, we use all the tokens as input, together with the respective predicate and additional features that we extract, and aim to predict what argument label belongs to the token. We evaluate our results again against the gold data. This thus means that we do **not** use our outputs for task (i) to train task (ii), rather we include the gold-predicates in task (ii). This means that our scores for task (ii) overestimates the actual scores, as in reality here, our scores for task (ii) can only be as good as our best score for task (i). Again for this task, it is important that we keep in mind that the data is skewed towards non-argument tokens. Finally, for the second task we also implement an LSTM-based neural network using AllenNLP, which we describe in part 3 of this README below. 
 
 For both task we had to preprocess the data. The steps we took in order to do this are described in the corresponding sections.
 
 ----------------------
-### 1. PREDICATE EXTRACTION
+## 1. PREDICATE EXTRACTION
 
 #### Task description
 Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.      
@@ -115,7 +115,7 @@ In conclusion, the performance of the rule based approach is far better than the
 
 
 ----------------------
-### 2. ARGUMENT CLASSIFICATION
+## 2. ARGUMENT CLASSIFICATION
 
 #### Task description
 Argument classification is the task to classify and assign argument types of a given predicate(s) in a sentence based on the the slected features. In this task, we employ a machine learning approach to carry out the classification task. The training and evaluation of the prediction in the task use gold predicates data from the original data. For the features, this task extracts some features from the gold data file and also use SpaCy to extract extra features such as dependency relation and head of the dependency based on the sentences. 
@@ -443,7 +443,7 @@ So we conclude that the task as it currently is is too difficult for our model t
 Overall, it appears that our chosen approach might not be ideal for this task. We decided to combine the argument extraction and classification tasks into one step. But as the empty label `_` is highly overrepresented in the data, and all the other labels are much more uncommon, this task might be too difficult for our model to learn. Potentially, a better approach would have been to extract the agruments using a rule-based approach, e.g. by taking those tokens that are direct dependents of the predicate. Continuing we could have trained a machine learning model on only those token that we have extracted to be arguments, to predict the argument label. In this case, the distribution of labels would be less skewed (as there is no `_` label in the data), which might make the classification task less difficult. 
 
 ----------------------
-## 3. Neural Network with AllenNLP
+## 3. LSTM-based Neural Network with AllenNLP
 
 
 
