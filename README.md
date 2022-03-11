@@ -208,9 +208,11 @@ We map through the raw data use the number of tokens to locate the predicate pos
 For the token, the predicate lemma and the 
 
 The selection reason of features from original data:
-* We selected `token_index`, `path_to_prediate_length` and `predicate_index` to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. **our expectation is that the machine can learn that a smaller distance between token and predicate means more likely an argument**
-* We selected `token`, `predicate_descendant` as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
-* We also provide `predicate_pos` and `predicate_dependency` for the model to refer from the pespective of syntax and dependency relation respectively.
+* We selected `token_index`, `path_to_prediate_length` and `predicate_index` because these all provide some information about the location of the token and the predicate in the sentence. We expect that it is often the case that the token and the predicate are close together in the sentence, or that the length of the dependency path between them is small.
+* We selected `token`, and the `precidate_lemma` to include information on the token/lemma of the current token and the predicate.
+* We include `predicate_descendant` to the model access to whether the current token is a descendant of the predicate, because this would make it more likely that the token is an argument for the predicate.
+* We add the `head_lemma` to include some information about what the head is of the current token. 
+* We also provide `predicate_pos` and `predicate_dependency` for the model to refer from the pespective of syntax and dependency of the predicate respectively.
 
 #### Further Feature Extraction
 We concatenate the tokens as sentence and use SpaCy to get further features and map through the sentences to lexical features. 
@@ -225,14 +227,12 @@ We concatenate the tokens as sentence and use SpaCy to get further features and 
 
 
 The selection of reasons of the further features:
-* **We use the `head_text` to coordinate with the token, since we only have the `predicate_lemma` but not lemma for all tokens, when doing feature ablation, we would like to discover whether `head_text` and `token` are correlated to help the model distinguish the dependency relation**
-* **We add `prev_token`, `prev_pos` to reveal the correlation of descendants and predicate from lexical and syntactic perspectives.**
-* **We provide dependency for every token to reveal the relation between the token and predicate from the perspective of dependency relationship. (as supplements for `predicate_dependency`)**
-
-
+* We add `prev_token` and `prev_pos` include some information about the token that preceeds the current token in the sentence, which might might provide information about what argument we are dealing with in some cases (for instance, being preceded by 'with' might indicate we are dealing with an instrument)
+* We add information about the Part of Speech through the `pos` and the `postag`. We think this can help the model, for instance because a noun is more likely to be an argument than a verb.
+* Finally we provide the dependency label for every token, since we believe this can carry a lot of information about what argument we are dealing with.
 
 #### Machine Learning
-To train our model, **we use a Support Vector Machine (SVM)**. Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
+To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case. The specific task here is a multi-class classification task, where there are 45 classes to distringuish between: the `_` label,  that indicates that the current token is not an argument, and 44 argument classes. Notably, the dataset is very skewed in this respect: the `_` is very highly overrepresented, while all the other labels are much less common. 
 
 #### Results
 Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label. Additionally, we inspect the following overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
@@ -496,6 +496,8 @@ performance scores per class:
 |ARGA           | 0.000     | 0.000    | 0.000|
 
 * We combine the features from original data and further features to train the model. The macro f-score (20.51) is the highest among all. Even though the f-score of `ARG0` is not the highest among all, the overall performance of `ARG0`, `ARG1`, `ARG4` is acceptable. We consider this model to be our best model, but still its results are far from satisfactory to use in a downstream task.
+
+Finally we also experimented with compressing our data using Singular Value Decomposition, but this did not improve our results. 
 
 To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as we would want from our model, as we would hope it would be able to achieve a score of at least 50 in macro scores. We do find micro F1 scores higher than 70, but this is due to the fact that the label `_` appears a lot in the dataset, and the scores for this label are much higher. So we conclude that the fact that the dataset is biased, causes that the task becomes very hard for our models to learn, with the current set of features we considered.
 
