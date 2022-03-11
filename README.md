@@ -202,13 +202,335 @@ In conclusion, the performance of the rule based approach is far better than the
 ### ARGUMENT CLASSIFICATION
 
 #### Task description
+Argument classification is the task to classify and assign argument types of the give predicate(s) in the sentence based on the the slected features. In this task, machine learning approache is employed to carry out the classification. The training and evaluation of the prediction in the task use gold predicates data from the original data. For the features, this task extracts some features from the original files and also use SpaCy to extract extra features such as dependency relation and head of the dependency based on the sentences. 
+
 
 #### Used Features and Further Feature Extraction
+To implement the classification, features are extracted from the original data, and extra features from using SpaCy to get sentences features. 
+
+##### Features from original data
+We map through the raw data use the number of tokens to locate the predicate position and other predicate info. The features extracted from the oringinal dasta are as follow:
+* token index : the position of the token in the sentence
+* token : the token itself
+* head_lemma: then root of the sentence
+* predicate descendant: the children of the predicate according to dependency relation
+* path_to_predicate_length: the number of steps from the current token to the predicate, if there is no direct path to the predicate, the token is not descendant of the predicate
+* predicate_lemma: the lemma of the predicate 
+* predicate_index: token index of the predicate
+* predicate_pos: part of speech of the predicate
+* predicate_dependency: dependency relation of the predicate
+
+
+The selection reason of features from original data:
+* We selected token_index, path_to_prediate_length and predicate_index to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. 
+* We seleted token, predicate descendant as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
+* We also provide predicate_pos and predicate_dependency for the model to refer from the pespective of syntax and dependency relation respectively.
+
+#### Further Feature Extraction
+We concatonate the tokens as sentence and use SpaCy to get further features and map through the sentences to lexical features. 
+* head_text: token of the sentence's root
+* prev_token: previous token of the current token
+* pos: part of speech of the current token
+* postag: pos tag of the current token
+* prev_pos: previous token's part of speech
+* dependency: current token's dependency relation
+
+
+The selection of reasons of the further features:
+* We use the head_text to coordinate with the token, since we only have the predicate_lemma but not lemma for all tokens, when doing feature ablation, we would like to discover whether head_text and token are correlated to help the model distinguish the dependency relation
+* We add prev_token, prev_pos to reveal the correaltion of descendants and predicate from lexical and syntactic perspectives.
+* We provide dependency for every token to reveal relation of the token and predicate from the perspective of dependency relationship. (as supplements for predicate_dependency)
+
+
 
 #### Machine Learning
 To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
 
 #### Results
+Regarding the evaluation of the model, we will concern the recall, precision and F-score for each label and macro and overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
+
+We use all features extracted (features from original data and further features). Since the memory to run train all rows in the original dataset requires more than 60GB, we would only use 100000 rows from the original data to do the emperiment and get the results. Feature ablation is also employed in the experiment to compare performance of the models with different features fed in.
+
+
+
+All Features experiment
+
+|Overall performance | scores| 
+|--------------------|-------|
+|Macro precision     | 26.01 |
+|Macro recall        | 16.64 |
+|Macro F1 score      | 20.29 |
+|Micro F1 score      | 72.18 |
+
+performance scores per class:
+|                |precision| recall  |f-score|
+|----------------|---------|---------|-------|
+| _              |  0.966  |  0.751  | 0.845 |
+| ARG1           |  0.273  |  0.485  | 0.349 |
+| ARG2           |  0.256  | 0.388   | 0.308 |
+| ARG0           | 0.482   | 0.529   | 0.504 |
+| ARG4           |  0.600  | 0.167   | 0.261 |
+| ARGM-DIS       |  0.567  | 0.404   | 0.472 |
+| ARGM-TMP       |  0.508  | 0.343   | 0.410 |
+| R-ARGM-TMP     |  0.000  | 0.000   | 0.000 |
+| ARGM-MOD       |  0.802  | 0.762   | 0.781 |
+| ARGM-ADV       |  0.222  | 0.281   | 0.248 |
+| ARGM-LOC       |  0.393  | 0.230   | 0.290 |
+| ARG3           |  0.211  | 0.058   | 0.091 |
+| R-ARG0         |  0.571  | 0.345   | 0.430 |
+| ARGM-NEG       |  0.696  | 0.627   | 0.660 |
+| V              |  0.000  | 0.000   | 0.000 |
+| ARGM-ADJ       |  0.570  | 0.480   | 0.521 |
+| ARGM-GOL       |  0.333  | 0.050   | 0.087 |
+| ARGM-PRP       |  0.200  | 0.104   | 0.137 |
+| ARGM-PRR       |  0.312  | 0.149   | 0.202 |
+| ARGM-LVB       |  0.277  | 0.269   | 0.273 |
+| R-ARG1         |  0.750  | 0.188   | 0.301 |
+| ARGM-PRD       |  0.500  | 0.100   | 0.167 |
+| ARGM-MNR       |  0.229  | 0.180   | 0.202 |
+| C-ARG1         |  0.022  | 0.128   | 0.038 |
+| ARGM-CAU       |  0.286  | 0.051   | 0.087 |
+| ARGM-EXT       |  0.500  | 0.202   | 0.288 |
+| R-ARGM-MNR     |  0.000  | 0.000   | 0.000 |
+| R-ARGM-LOC     |  0.000  | 0.000   | 0.000 |
+| C-V            |  0.167  | 0.077   | 0.105 |
+| ARGM-COM       |  0.000  | 0.000   | 0.000 |
+| ARGM-CXN       |  1.000  | 0.091   | 0.167 |
+| C-ARGM-CXN     |  0.000  | 0.000   | 0.000 |
+| R-ARGM-ADJ     |  0.000  | 0.000   | 0.000 |
+| ARGM-DIR       |  0.010  | 0.048   | 0.017 |
+| C-ARG3         |  0.000  | 0.000   | 0.000 |
+| ARG5           |  0.000  | 0.000   | 0.000 |
+| R-ARG2         |  0.000  | 0.000   | 0.000 |
+| R-ARGM-ADV     |  0.000  | 0.000   | 0.000 |
+| R-ARGM-DIR     |  0.000  | 0.000   | 0.000 |
+| C-ARG0         |  0.000  | 0.000   | 0.000 |
+| C-ARG2         |  0.000  | 0.000   | 0.000 |
+| ARG1-DSP       |  0.000  | 0.000   | 0.000 |
+| C-ARG1-DSP     |  0.000  | 0.000   | 0.000 |
+| C-ARGM-LOC     |  0.000  | 0.000   | 0.000 |
+| ARGA           |  0.000  | 0.000   | 0.000 |
+
+* The performance scores of the all features fed in model is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates. Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
+
+Only Predicate Info Features Experiment:
+
+|Overall performance | scores|
+|--------------------|-------|
+|Macro precision     | 28.57 |
+|Macro recall        | 15.93 |
+|Macro F1 score      | 20.46 |
+|Micro F1 score      | 91.69 |
+
+performance scores per class:
+|               | precision | recall  |f-score|
+|---------------|-----------|----------|------|
+|_              | 0.953     | 0.973    |0.963 |
+|ARG1           | 0.570     | 0.395    |0.467 |
+|ARG2           | 0.301     | 0.215    |0.251 |
+|ARG0           | 0.558     | 0.515    |0.536 |
+|ARG4           | 0.600     | 0.167    |0.261 |
+|ARGM-DIS       | 0.710     | 0.394    |0.507 |
+|ARGM-TMP       | 0.455     | 0.432    |0.443 |
+|R-ARGM-TMP     | 0.000     | 0.000    |0.000 |
+|ARGM-MOD       | 0.822     | 0.681    |0.745 |
+|ARGM-ADV       | 0.267     | 0.261    |0.264 |
+|ARGM-LOC       | 0.298     | 0.250    |0.272 |
+|ARG3           | 0.132     | 0.070    |0.091 |
+|R-ARG0         | 0.657     | 0.371    |0.474 |
+|ARGM-NEG       | 0.771     | 0.570    |0.655 |
+|V              | 0.000     | 0.000    |0.000 |
+|ARGM-ADJ       | 0.238     | 0.479    |0.318 |
+|ARGM-GOL       | 0.500     | 0.130    |0.206 |
+|ARGM-PRP       | 0.304     | 0.099    |0.149 |
+|ARGM-PRR       | 0.647     | 0.162    |0.259 |
+|ARGM-LVB       | 0.000     | 0.000    |0.000 |
+|R-ARG1         | 0.750     | 0.143    |0.240 |
+|ARGM-PRD       | 0.667     | 0.095    |0.166 |
+|ARGM-MNR       | 0.242     | 0.165    |0.196 |
+|C-ARG1         | 0.304     | 0.146    |0.197 |
+|ARGM-CAU       | 0.250     | 0.048    |0.081 |
+|ARGM-EXT       | 0.500     | 0.208    |0.294 |
+|R-ARGM-MNR     | 0.000     | 0.000    |0.000 |
+|R-ARGM-LOC     | 0.000     | 0.000    |0.000 |
+|C-V            | 0.250     | 0.071    |0.111 |
+|ARGM-COM       | 0.000     | 0.000    |0.000 |
+|ARGM-CXN       | 1.000     | 0.083    |0.153 |
+|C-ARGM-CXN     | 0.000     | 0.000    |0.000 |
+|R-ARGM-ADJ     | 0.000     | 0.000    |0.000 |
+|ARGM-DIR       | 0.111     | 0.047    |0.066 |
+|C-ARG3         | 0.000     | 0.000    |0.000 |
+|ARG5           | 0.000     | 0.000    |0.000 |
+|R-ARG2         | 0.000     | 0.000    |0.000 |
+|R-ARGM-ADV     | 0.000     | 0.000    |0.000 |
+|R-ARGM-DIR     | 0.000     | 0.000    |0.000 |
+|C-ARG0         | 0.000     | 0.000    |0.000 |
+|C-ARG2         | 0.000     | 0.000    |0.000 |
+|ARG1-DSP       | 0.000     | 0.000    |0.000 |
+|C-ARG1-DSP     | 0.000     | 0.000    |0.000 |
+|C-ARGM-LOC     | 0.000     | 0.000    |0.000 |
+|ARGA           | 0.000     | 0.000    |0.000 |
+
+* We would like to see how does the model perform with only predicate info features from original dataset fed in the model because we would like to see wether the further features are useful for the model to distinguish the token and predicate relation. From the overall performance, we can see that the macro f1-score is slightly higher (0.17) than the performance of all features fed model. Besides, the f-score of ARG0 is higher(0.032) than all features fed in model. We assume that some features are noisy for the classification.
+
+Only further features experiments:
+
+|Overall performance | scores|
+|--------------------|-------|
+|Macro precision     | 25.01 |
+|Macro recall        | 16.4  |
+|Macro F1 score      | 19.81 |
+|Micro F1 score      | 89.75 |
+
+performance scores per class:
+|               | precision | recall  |f-score|
+|---------------|-----------|----------|------|
+|_              | 0.957     |0.947     |0.952 |
+|ARG1           | 0.388     |0.421     |0.404 |
+|ARG2           | 0.286     |0.164     |0.208 |
+|ARG0           | 0.396     |0.569     |0.467 |
+|ARG4           | 0.600     |0.170     |0.265 |
+|ARGM-DIS       | 0.676     |0.399     |0.502 |
+|ARGM-TMP       | 0.258     |0.445     |0.327 |
+|R-ARGM-TMP     | 0.000     |0.000     |0.000 |
+|ARGM-MOD       | 0.751     |0.730     |0.740 |
+|ARGM-ADV       | 0.236     |0.288     |0.259 |
+|ARGM-LOC       | 0.345     |0.266     |0.300 |
+|ARG3           | 0.174     |0.062     |0.091 |
+|R-ARG0         | 0.679     |0.328     |0.442 |
+|ARGM-NEG       | 0.656     |0.588     |0.620 |
+|V              | 0.000     |0.000     |0.000 |
+|ARGM-ADJ       | 0.287     |0.500     |0.365 |
+|ARGM-GOL       | 0.500     |0.095     |0.160 |
+|ARGM-PRP       | 0.261     |0.090     |0.134 |
+|ARGM-PRR       | 0.579     |0.169     |0.262 |
+|ARGM-LVB       | 0.000     |0.000     |0.000 |
+|R-ARG1         | 0.750     |0.150     |0.250 |
+|ARGM-PRD       | 0.625     |0.135     |0.222 |
+|ARGM-MNR       | 0.242     |0.200     |0.219 |
+|C-ARG1         | 0.269     |0.159     |0.200 |
+|ARGM-CAU       | 0.027     |0.079     |0.040 |
+|ARGM-EXT       | 0.488     |0.208     |0.292 |
+|R-ARGM-MNR     | 0.000     |0.000     |0.000 |
+|R-ARGM-LOC     | 0.000     |0.000     |0.000 |
+|C-V            | 0.200     |0.077     |0.111 |
+|ARGM-COM       | 0.000     |0.000     |0.000 |
+|ARGM-CXN       | 0.500     |0.091     |0.154 |
+|C-ARGM-CXN     | 0.000     |0.000     |0.000 |
+|R-ARGM-ADJ     | 0.000     |0.000     |0.000 |
+|ARGM-DIR       | 0.125     |0.049     |0.070 |
+|C-ARG3         | 0.000     |0.000     |0.000 |
+|ARG5           | 0.000     |0.000     |0.000 |
+|R-ARG2         | 0.000     |0.000     |0.000 |
+|R-ARGM-ADV     | 0.000     |0.000     |0.000 |
+|R-ARGM-DIR     | 0.000     |0.000     |0.000 |
+|C-ARG0         | 0.000     |0.000     |0.000 |
+|C-ARG2         | 0.000     |0.000     |0.000 |
+|ARG1-DSP       | 0.000     |0.000     |0.000 |
+|C-ARG1-DSP     | 0.000     |0.000     |0.000 |
+|C-ARGM-LOC     | 0.000     |0.000     |0.000 |
+|ARGA           | 0.000     |0.000     |0.000 |
+
+* We also train a model with only further features fed in and the macro f-score and ARG0 f-score is lower than the only predicate info fed in model, which means that there are some noisy features in further features and if we want to improve the performance, we need to select certain features from further features set to combine with the predicate info features.
+
+Selected certain features: 
+|features                 |data origin|
+|-------------------------|---------|      
+|token                    | original|           
+|head_lemma               | original|              
+|predicate_descendant     | original|                
+|path_to_predicate_length | original|                 
+|predicate_index          | original|               
+|predicate_lemma          | original|                   
+|predicate_pos            | original|                    
+|predicate_dependency     | original|                        
+|prev_pos                 | further |                 
+|pos                      | further |   
+
+|Overall performance | scores|
+|--------------------|-------|
+|Macro precision     | 28.88 |
+|Macro recall        | 15.91 |
+|Macro F1 score      | 20.51 |
+|Micro F1 score      | 90.66 |
+
+performance scores per class:
+|               | precision | recall  |f-score|
+|---------------|-----------|----------|------|
+|_              | 0.956     | 0.959    | 0.957|
+|ARG1           | 0.586     | 0.385    | 0.465|
+|ARG2           | 0.246     | 0.352    | 0.290|
+|ARG0           | 0.473     | 0.533    | 0.501|
+|ARG4           | 0.615     | 0.148    | 0.239|
+|ARGM-DIS       | 0.676     | 0.406    | 0.507|
+|ARGM-TMP       | 0.436     | 0.450    | 0.443|
+|R-ARGM-TMP     | 0.000     | 0.000    | 0.000|
+|ARGM-MOD       | 0.802     | 0.696    | 0.745|
+|ARGM-ADV       | 0.260     | 0.253    | 0.256|
+|ARGM-LOC       | 0.462     | 0.228    | 0.305|
+|ARG3           | 0.250     | 0.070    | 0.109|
+|R-ARG0         | 0.700     | 0.344    | 0.461|
+|ARGM-NEG       | 0.774     | 0.551    | 0.644|
+|V              | 0.000     | 0.000    | 0.000|
+|ARGM-ADJ       | 0.146     | 0.486    | 0.225|
+|ARGM-GOL       | 0.667     | 0.087    | 0.154|
+|ARGM-PRP       | 0.273     | 0.086    | 0.131|
+|ARGM-PRR       | 0.625     | 0.147    | 0.238|
+|ARGM-LVB       | 0.000     | 0.000    | 0.000|
+|R-ARG1         | 0.750     | 0.146    | 0.244|
+|ARGM-PRD       | 0.667     | 0.098    | 0.171|
+|ARGM-MNR       | 0.275     | 0.169    | 0.209|
+|C-ARG1         | 0.263     | 0.106    | 0.151|
+|ARGM-CAU       | 0.286     | 0.050    | 0.085|
+|ARGM-EXT       | 0.513     | 0.200    | 0.288|
+|R-ARGM-MNR     | 0.000     | 0.000    | 0.000|
+|R-ARGM-LOC     | 0.000     | 0.000    | 0.000|
+|C-V            | 0.200     | 0.077    | 0.111|
+|ARGM-COM       | 0.000     | 0.000    | 0.000|
+|ARGM-CXN       | 1.000     | 0.083    | 0.153|
+|C-ARGM-CXN     | 0.000     | 0.000    | 0.000|
+|R-ARGM-ADJ     | 0.000     | 0.000    | 0.000|
+|ARGM-DIR       | 0.095     | 0.048    | 0.064|
+|C-ARG3         | 0.000     | 0.000    | 0.000|
+|ARG5           | 0.000     | 0.000    | 0.000|
+|R-ARG2         | 0.000     | 0.000    | 0.000|
+|R-ARGM-ADV     | 0.000     | 0.000    | 0.000|
+|R-ARGM-DIR     | 0.000     | 0.000    | 0.000|
+|C-ARG0         | 0.000     | 0.000    | 0.000|
+|C-ARG2         | 0.000     | 0.000    | 0.000|
+|ARG1-DSP       | 0.000     | 0.000    | 0.000|
+|C-ARG1-DSP     | 0.000     | 0.000    | 0.000|
+|C-ARGM-LOC     | 0.000     | 0.000    | 0.000|
+|ARGA           | 0.000     | 0.000    | 0.000|
+
+* We combine the features from original data and further features to train the model. The macro f-score (20.51) is the highest among all. Even though the f-score of ARG0 is not the highest among all, but the over all performance of ARG0, ARG1, ARG4 is acceptable.
+
+To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as the other classifiers which can achieve more than 50 in macro scores. The micro scores of the models are higher than 70 because the label'_' appears a lot in the dataset, which means the dataset is biased.
+We need to look for the benchmark of the srl task using SVM to compare the performance of our models.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### References
 Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005).
