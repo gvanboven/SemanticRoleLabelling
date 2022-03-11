@@ -241,14 +241,14 @@ We concatenate the tokens as sentence and use SpaCy to get further features and 
 
 
 The selection of reasons of the further features:
-* We use the `head_text` to coordinate with the token, since we only have the `predicate_lemma` but not lemma for all tokens, when doing feature ablation, we would like to discover whether `head_text` and `token` are correlated to help the model distinguish the dependency relation
-* We add `prev_token`, `prev_pos` to reveal the correlation of descendants and predicate from lexical and syntactic perspectives.
-* We provide dependency for every token to reveal the relation between the token and predicate from the perspective of dependency relationship. (as supplements for `predicate_dependency`)
+* **We use the `head_text` to coordinate with the token, since we only have the `predicate_lemma` but not lemma for all tokens, when doing feature ablation, we would like to discover whether `head_text` and `token` are correlated to help the model distinguish the dependency relation**
+* **We add `prev_token`, `prev_pos` to reveal the correlation of descendants and predicate from lexical and syntactic perspectives.**
+* **We provide dependency for every token to reveal the relation between the token and predicate from the perspective of dependency relationship. (as supplements for `predicate_dependency`)**
 
 
 
 #### Machine Learning
-To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
+To train our model, **we use a Support Vector Machine (SVM)**. Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
 
 #### Results
 Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label and macro and overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
@@ -314,9 +314,10 @@ performance scores per class:
 | C-ARGM-LOC     |  0.000  | 0.000   | 0.000 |
 | ARGA           |  0.000  | 0.000   | 0.000 |
 
-* The performance scores of the model with all features fed is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates. Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
+* The performance scores of the model with all features fed is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model **to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates.** Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
 
 Only Predicate Info Features Experiment:
+**include sentence: what features are used here exactly?**
 
 |Overall performance | scores|
 |--------------------|-------|
@@ -377,6 +378,8 @@ performance scores per class:
 * We would like to see how does the model perform with only predicate info features from original dataset fed in the model because we would like to see wether the further features are useful for the model to distinguish the token and predicate relation. From the overall performance, we can see that the macro f1-score is slightly higher (0.17) than the performance of all features fed model. Besides, the f-score of ARG0 is higher(0.032) than all features fed in model. We assume that some features are noisy for the classification.
 
 Only further features experiments:
+
+**TODO: add what features are used here exactly**
 
 |Overall performance | scores|
 |--------------------|-------|
@@ -509,8 +512,10 @@ performance scores per class:
 * We combine the features from original data and further features to train the model. The macro f-score (20.51) is the highest among all. Even though the f-score of ARG0 is not the highest among all, but the over all performance of ARG0, ARG1, ARG4 is acceptable.
 
 To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as the other classifiers which can achieve more than 50 in macro scores. The micro scores of the models are higher than 70 because the label'_' appears a lot in the dataset, which means the dataset is biased.
-We need to look for the benchmark of the srl task using SVM to compare the performance of our models.
+**We need to look for the benchmark of the srl task using SVM to compare the performance of our models.**
 
+#### Discussion
+Overall, it appears that our chosen approach might not be ideal for this task. We decided to combine the argument extraction and classification tasks into one step. But as the empty label `_` is highly overrepresented in the data, and all the other labels are much more uncommon, this task might be too difficult for our model to learn. Potentially, a better approach would have been to extract the agruments using a rule-based approach, e.g. by taking those tokens that are direct dependents of the predicate. Continuing we could have trained a machine learning model on only those token that we have extracted to be arguments, to predict the argument label. In this case, the distribution of labels would be less skewed (as there is no `_` label in the data), which might make the classification task less difficult. 
 
 
 
