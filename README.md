@@ -202,23 +202,25 @@ In conclusion, the performance of the rule based approach is far better than the
 ### ARGUMENT CLASSIFICATION
 
 #### Task description
-Argument classification is the task to classify and assign argument types of the give predicate(s) in the sentence based on the the slected features. In this task, machine learning approache is employed to carry out the classification. The training and evaluation of the prediction in the task use gold predicates data from the original data. For the features, this task extracts some features from the original files and also use SpaCy to extract extra features such as dependency relation and head of the dependency based on the sentences. 
+Argument classification is the task to classify and assign argument types of a given predicate(s) in a sentence based on the the slected features. In this task, we employ a machine learning approach to carry out the classification task. The training and evaluation of the prediction in the task use gold predicates data from the original data. For the features, this task extracts some features from the gold data file and also use SpaCy to extract extra features such as dependency relation and head of the dependency based on the sentences. 
 
 
 #### Used Features and Further Feature Extraction
-To implement the classification, features are extracted from the original data, and extra features from using SpaCy to get sentences features. 
+To implement the classification, features are extracted from the original (gold) data, and extra features are extracted by using SpaCy to get sentences features. 
 
 ##### Features from original data
-We map through the raw data use the number of tokens to locate the predicate position and other predicate info. The features extracted from the oringinal dasta are as follow:
-* token index : the position of the token in the sentence
-* token : the token itself
-* head_lemma: then root of the sentence
-* predicate descendant: the children of the predicate according to dependency relation
-* path_to_predicate_length: the number of steps from the current token to the predicate, if there is no direct path to the predicate, the token is not descendant of the predicate
-* predicate_lemma: the lemma of the predicate 
-* predicate_index: token index of the predicate
-* predicate_pos: part of speech of the predicate
-* predicate_dependency: dependency relation of the predicate
+We map through the raw data use the number of tokens to locate the predicate position and other predicate info. The features extracted from the oringinal dasta are the following:
+| Name                     | Description                                                                                                                                                                                                              | Data type        |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|
+| token index              | the position of the token in the sentence (integer)                                                                                                                                                                      |      integer     |
+| token                    | the token itself (string)                                                                                                                                                                                                |      string      |
+| head_lemma               | the lemma of the head of the token (string)                                                                                                                                                                              |      string      |
+| predicate descendant     | a binary feature, indicating whether the current token is a descendant of the  current predicate (1), or not (0) (integer)                                                                                               | integer (binary) |
+| path to predicate length | the number of steps from the current token to the predicate in the dependency tree,  if there is no direct path to the predicate, the token is not descendant of the predicate  and then the value will be 100 (integer) |      integer     |
+| predicate_lemma          | the lemma of the current predicate                                                                                                                                                                                       |      string      |
+| predicate index          | token index of the current predicate                                                                                                                                                                                     |      integer     |
+| predicate_pos            | part of speech of the current predicate                                                                                                                                                                                  |      string      |
+| predicate dependency     | dependency label of the current predicate                                                                                                                                                                                |      string      |
 
 
 The selection reason of features from original data:
