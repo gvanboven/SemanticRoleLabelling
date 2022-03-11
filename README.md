@@ -1,33 +1,11 @@
-README.md
-Wie heeft toegang
-V
-G
-X
-Systeemeigenschappen
-Type
-Tekst
-Grootte
-17 KB
-Gebruikte opslag
-17 KB
-Locatie
-SRL
-Eigenaar
-Vicky Kyrmanidi
-Gewijzigd
-8 mrt. 2022 door Vicky Kyrmanidi
-Geopend
-09:37 door mij
-Gemaakt
-8 mrt. 2022
-Voeg een beschrijving toe
-Kijkers kunnen downloaden
+
 # Semantic Role Labelling
 
 In this repository, our code can be found to implement a Semantic Role Labelling System.   
 We have created this code for the second assignment for the course NLP Technologies at the Vrije Universiteit Amsterdam.  
 We train our system on data from the Universal Proposition Banks dataset.   
 This readme consists of two parts. In the first part we present a description of the code and how to run it. In the second part we describe our task and present our results.  
+This project is carries out by Alice Ye, Vicky Kyrmanidi and G. van Boven.
 
 ----------------------
 ## Repository description
@@ -117,7 +95,8 @@ Finally, there is an optional feature `[selected features]`, which to allows to 
 
 This file evaluates machine predictions in a conll file wich contains both gold labels and machine annotations.
 This file prints out the confusion matrix and the overall macro precision, recall and F1, as well as the micro F1 score.
-Additionally, the precision, recall and F1 are computed per class, and a table is printed out that gives an overview of these scores.
+Additionally, the precision, recall and F1 are computed per class, and a table is printed out that gives an overview of these scores.    
+This code was based on code provided for the course Machine Learning for NLP by Antske Fokkens and José Angel Daza.
 
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_input_file_path]' [gold_index] [predictions_index]`    
@@ -127,6 +106,10 @@ Where `'[conll_input_file_path]'` is the file  that contains the gold labels and
 
 ----------------------
 ## Task description and results for the different tasks
+
+In this project, we implement a system to carry out the task of Semantic Role Labelling. This task .....
+We can consider the task to consist of two steps: (i) finding the predicates present in a given sentence, and (ii) finding the corresponding argument for each predicate. 
+In this project, we split up these two tasks, and evaluate the outputs separately with the gold data. More precisely, this means that we 
 
 ### PREDICATE EXTRACTION
 
@@ -222,10 +205,11 @@ We map through the raw data use the number of tokens to locate the predicate pos
 | predicate_pos            | part of speech of the current predicate                                                                                                                                                                                  |      string      |
 | predicate_dependency     | dependency label of the current predicate                                                                                                                                                                                |      string      |
 
+For the token, the predicate lemma and the 
 
 The selection reason of features from original data:
-* We selected `token_index`, `path_to_prediate_length` and `predicate_index` to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. 
-* We seleted `token`, `predicate_descendant` as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
+* We selected `token_index`, `path_to_prediate_length` and `predicate_index` to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. **our expectation is that the machine can learn that a smaller distance between token and predicate means more likely an argument**
+* We selected `token`, `predicate_descendant` as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
 * We also provide `predicate_pos` and `predicate_dependency` for the model to refer from the pespective of syntax and dependency relation respectively.
 
 #### Further Feature Extraction
@@ -251,12 +235,12 @@ The selection of reasons of the further features:
 To train our model, **we use a Support Vector Machine (SVM)**. Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
 
 #### Results
-Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label and macro and overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
+Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label. Additionally, we inspect the following overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
 
 We use all features extracted (features from original data and further features). Since the memory to run train all rows in the original dataset requires more than 60GB, and this is too much for our computers, we decided to only use 100.000 rows from the data to train and test our models on. After training a model on all features, we carry out a feature ablation study (see below) to compare performance of models with different features fed in.
 
 
-All Features experiment
+##### All Features experiment
 
 |Overall performance | scores| 
 |--------------------|-------|
@@ -314,10 +298,11 @@ performance scores per class:
 | C-ARGM-LOC     |  0.000  | 0.000   | 0.000 |
 | ARGA           |  0.000  | 0.000   | 0.000 |
 
-* The performance scores of the model with all features fed is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model **to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates.** Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
+* The performance scores of the model with all features fed is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model. We expect that the information about the predicate is important, since the argument relation is established between the token and the predicate.Contuing, we expect the dependency label to be important, as this is one of the main features a human would consider when assignming semantic role labels. However, we cannot know in advance whether the model will consider the same features as humans do.       
+ Since there are a lot of labels for the model to classify, we will focus on the main arguments of the sentences: `ARG0`, `ARG1`, `ARG2`, `ARG4` as they are common predicate arguments. `ARG0` is the most commonly used in predicates arguments classification. In this experiment, `ARG0`'s f-score is 0.504, which needs improvement, but it comes closer to being acceptable.
 
-Only Predicate Info Features Experiment:
-**include sentence: what features are used here exactly?**
+##### Only Predicate Info Features Experiment:    
+Here we used only the features from the original data (so not the features we extracted from SpaCy), meaning the following: `token_index`, `token` `head_lemma`, `predicate_descendant`, `path_to_predicate_length`, `predicate_lemma`, `predicate_index`, `predicate_pos`, `predicate_dependency`.  Here, the dependency label of the token is not included. As we expect the dependency label to be important for argument classification, we expect the performance of the model to drop here.  
 
 |Overall performance | scores|
 |--------------------|-------|
@@ -375,11 +360,11 @@ performance scores per class:
 |C-ARGM-LOC     | 0.000     | 0.000    |0.000 |
 |ARGA           | 0.000     | 0.000    |0.000 |
 
-* We would like to see how does the model perform with only predicate info features from original dataset fed in the model because we would like to see wether the further features are useful for the model to distinguish the token and predicate relation. From the overall performance, we can see that the macro f1-score is slightly higher (0.17) than the performance of all features fed model. Besides, the f-score of ARG0 is higher(0.032) than all features fed in model. We assume that some features are noisy for the classification.
+* We would like to see how does the model perform with only predicate info features from original dataset fed in the model, because we would like to see wether the further features are useful for the model to distinguish the token and predicate relation. From the overall performance, we can see that the macro f1-score is slightly higher (+0.17) than the performance of all features fed model. Besides, the f-score of `ARG0` is higher(+0.032) than the model with all the features fed. While we expected the dependencly label to be important, it appears that it is not crucial for the task (although this was not the only feature we excluded). Importantly however, the results of this model are still poor. Therefore, this selection of features does not appear to be sufficiently imformative for the model to learn this task.
 
-Only further features experiments:
+##### Only further features experiments:
 
-**TODO: add what features are used here exactly**
+In this experiment we include the following features: `token`, `token index`, `head_text`, `prev_token`, `postag`, `postag`, `prev_pos`, `dependency`. Importantly, we do not include any information about the predicate in this experiment, so we expect the performance to drop further.
 
 |Overall performance | scores|
 |--------------------|-------|
@@ -437,9 +422,10 @@ performance scores per class:
 |C-ARGM-LOC     | 0.000     |0.000     |0.000 |
 |ARGA           | 0.000     |0.000     |0.000 |
 
-* We also train a model with only further features fed in and the macro f-score and ARG0 f-score is lower than the only predicate info fed in model, which means that there are some noisy features in further features and if we want to improve the performance, we need to select certain features from further features set to combine with the predicate info features.
+* We also train a model with only further features fed in. Here we note that the the macro f-score (-0.65) and `ARG0` f-score is lower (-0.069) than for the only predicate info model. This might indicate that the information about the predicates is useful for the model to make predictions. However, as we use a nearly completly different list of features here, we cannot be certain that it is the lack of predicate information that causes the drop in performance. Again it is important to note that the difference in performance is not so big, and the performances of the models remain in the same range. Finally, we will try to elect certain features from further features set to combine with the predicate info features, to see if this can reach a better model.
 
-Selected certain features: 
+##### Selected certain features: 
+In this experiment we include the following features:
 |features                 |data origin|
 |-------------------------|---------|      
 |token                    | original|           
@@ -509,10 +495,9 @@ performance scores per class:
 |C-ARGM-LOC     | 0.000     | 0.000    | 0.000|
 |ARGA           | 0.000     | 0.000    | 0.000|
 
-* We combine the features from original data and further features to train the model. The macro f-score (20.51) is the highest among all. Even though the f-score of ARG0 is not the highest among all, but the over all performance of ARG0, ARG1, ARG4 is acceptable.
+* We combine the features from original data and further features to train the model. The macro f-score (20.51) is the highest among all. Even though the f-score of `ARG0` is not the highest among all, the overall performance of `ARG0`, `ARG1`, `ARG4` is acceptable. We consider this model to be our best model, but still its results are far from satisfactory to use in a downstream task.
 
-To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as the other classifiers which can achieve more than 50 in macro scores. The micro scores of the models are higher than 70 because the label'_' appears a lot in the dataset, which means the dataset is biased.
-**We need to look for the benchmark of the srl task using SVM to compare the performance of our models.**
+To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as we would want from our model, as we would hope it would be able to achieve a score of at least 50 in macro scores. We do find micro F1 scores higher than 70, but this is due to the fact that the label `_` appears a lot in the dataset, and the scores for this label are much higher. So we conclude that the fact that the dataset is biased, causes that the task becomes very hard for our models to learn, with the current set of features we considered.
 
 #### Discussion
 Overall, it appears that our chosen approach might not be ideal for this task. We decided to combine the argument extraction and classification tasks into one step. But as the empty label `_` is highly overrepresented in the data, and all the other labels are much more uncommon, this task might be too difficult for our model to learn. Potentially, a better approach would have been to extract the agruments using a rule-based approach, e.g. by taking those tokens that are direct dependents of the predicate. Continuing we could have trained a machine learning model on only those token that we have extracted to be arguments, to predict the argument label. In this case, the distribution of labels would be less skewed (as there is no `_` label in the data), which might make the classification task less difficult. 
