@@ -232,7 +232,8 @@ The selection of reasons of the further features:
 * Finally we provide the dependency label for every token, since we believe this can carry a lot of information about what argument we are dealing with.
 
 #### Machine Learning
-To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case. The specific task here is a multi-class classification task, where there are 45 classes to distringuish between: the `_` label,  that indicates that the current token is not an argument, and 44 argument classes. Notably, the dataset is very skewed in this respect: the `_` is very highly overrepresented, while all the other labels are much less common. 
+To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case. The specific task here is a multi-class classification task, where there are 45 classes to distringuish between: the `_` label,  that indicates that the current token is not an argument, and 44 argument classes. Notably, the dataset is very skewed in this respect: the `_` is very highly overrepresented, while all the other labels are much less common.      
+In our model, we represent our features that are integeres as integers, and represent all the features that are string through one-hot encodings, except for the `token`, `head_lemma`, `prev_token` and the `head_text`, as we use Word2Vec word-embeddings to represent those.
 
 #### Results
 Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label. Additionally, we inspect the following overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
