@@ -445,7 +445,35 @@ Overall, it appears that our chosen approach might not be ideal for this task. W
 ----------------------
 ## 3. LSTM-based Neural Network with AllenNLP
 
+In this section, we give a description of the components of the AllenNLP model:
 
+`DatasetReader`: The DatasetReader component of AllenNLP is used to turn raw data into Instances. Each instance is composed of a text field representing the input and a label field representing the output. For example, in the case of a text classification task, the text field is formed by an input sentence/document while the label field is a label representing the sentiment category. More specifically the text field of an instance is formulated by tokenising a raw sentence and representing each token with an index.  The label field is simply a label string for that particular sentence/
+
+`Model`: An AllenNLP model is based on a constructor and a forward method. The constructor is used to build the model and includes the following: a) an embedding function that take the text field and turns each token id into an embedding vector. b)a Seq2Vec Encoder that merges all the embedding vectors for a single sentence into a single vector. c) a vocabulary component that maps tokens and labels to indexes. The output labels form matrix of size (num labels, num input data in the batch), where each row represents the probability distribution of the sentiment categories for a single data point. Finally, the model skeleton also includes a classification layer that transforms the values/weights of the input vector, produced by the Seq2Vec Encoder, into logits that are later turned into a probability distribution of the prediction over the possible labels.
+In a nutshell the constructor specifies the parameters that are used by the forward_method to transform the input (i.e. the instances produced by DataSetReader) and use it to train the classifier. The forward method makes predictions and computes the loss based on the label field provided in the input instances.The output of the forward method is a dictionary, with one key being the output of the loss function that is used for gradient descent to optimize the model, and the second key being the output probabilities of a softmax function applied to the logits mentioned above.
+
+`Trainer`: When using ALlenNLP the parameters specified by the constructor component of the  model can be simply stored in a json dictionary. One of those parameters is the trainer that exethe number of epochs used, and any optimisation technique, if used.) This json dictionary constitutes a configuration file that is used to instantiate a model object.
+
+`Predictor`: As its name suggests the predictor is used for making predictions. It is composed of the json_to_instance() function, that takes a raw sentence as input and turns it into a json dictionary using the DataSetReader, and the predict() function that produces an output json file. However, the predictor is applied differently when used on labelled compared to unlabelled data. In order to apply the model and make predictions on unlabelled data, the data needs to be encoded as Instances by the DatasetReader, with the exception that this time the output/label parameter is not needed, since there are no gold labels. That means, that the pipeline used by the predictor for encoding the test data different from that used to encode the train data. However, they still share the same DatasetReader, only that it is adjusted to have the 'label' parameter as optional. This way, both the train and test data to share the same features and representation parameters and avoid any discrepancies.
+Another difference that distinguishes the predictor from the trainer concerns the forward function. During prediction on unlabelled data, the output dictionary produced by the forward algorithm does not include the loss key, since it is not based on any gold labels to evaluate the output.
+
+
+
+
+
+
+After running our models, we get the following output:
+""""
+I am running away from here !
+['I', 'am', 'running', 'away', 'from', 'here', '!']
+	VERB: am | ARGS: ['B-ARG1', 'B-V', 'O', 'O', 'O', 'O', 'O']
+	VERB: running | ARGS: ['B-ARG0', 'O', 'B-V', 'B-ARG1', 'O', 'O', 'O']
+
+The paint and wheels looked like glass and the interior looked new !
+['The', 'paint', 'and', 'wheels', 'looked', 'like', 'glass', 'and', 'the', 'interior', 'looked', 'new', '!']
+	VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'B-V', 'O', 'B-ARG1', 'O', 'O', 'O', 'O', 'O', 'O']
+	VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-ARG0', 'B-V', 'B-ARG1', 'O']
+""""
 
 
 
