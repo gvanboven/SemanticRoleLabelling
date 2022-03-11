@@ -429,24 +429,13 @@ performance scores per class:
 
 Finally we also experimented with compressing our data using Singular Value Decomposition, but this did not improve our results. 
 
-To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as we would want from our model, as we would hope it would be able to achieve a score of at least 50 in macro scores. We do find micro F1 scores higher than 70, but this is due to the fact that the label `_` appears a lot in the dataset, and the scores for this label are much higher. So we conclude that the fact that the dataset is biased, causes that the task becomes very hard for our models to learn, with the current set of features we considered.
+To conclude, the overall performance of all the models above is not satisfying as the macro recall, macro precision, macro f-score are not as high as we would want from our model, as we would hope it would be able to achieve a score of at least 50 in macro scores. We do find micro F1 scores higher than 70, but this is due to the fact that the label `_` is overrepresented in the dataset, and the scores for this label are much higher.       
+We must also keep in mind here that these results are still an overestimation of the actual performance scores, since we use the gold predicates as inputs, rather than our extracted predicates. In reality, the performance is thus even still lower.      
+So we conclude that the task as it currently is is too difficult for our model to learn. This is likely to be caused by the fact that our dataset is very unbalanced, and because our models is not able to find patterns in the data.
+
 
 #### Discussion
 Overall, it appears that our chosen approach might not be ideal for this task. We decided to combine the argument extraction and classification tasks into one step. But as the empty label `_` is highly overrepresented in the data, and all the other labels are much more uncommon, this task might be too difficult for our model to learn. Potentially, a better approach would have been to extract the agruments using a rule-based approach, e.g. by taking those tokens that are direct dependents of the predicate. Continuing we could have trained a machine learning model on only those token that we have extracted to be arguments, to predict the argument label. In this case, the distribution of labels would be less skewed (as there is no `_` label in the data), which might make the classification task less difficult. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
