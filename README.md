@@ -21,14 +21,23 @@ The model should thus be downloaded and placed in this folder in order for the c
 
 #### `.\code`
 
-This folder contains our code. In this file you find a separate README in which we describe all of our files. 
+This folder contains our code. In this fodler you find a separate README in which we describe all of our files. 
 
 ----------------------
 ## Task description and results for the different tasks
 
-In this project, we implement a system to carry out the task of Semantic Role Labelling. This task .....
-We can consider the task to consist of two steps: (i) finding the predicates present in a given sentence, and (ii) finding the corresponding argument for each predicate. 
-In this project, we split up these two tasks, and evaluate the outputs separately with the gold data. More precisely, this means that we 
+In this project, we implement a system to carry out the task of Semantic Role Labelling (SRL). Theoretically, the goal of this task is to answer the question 'who did what to whom', in other words to find the participants of an event, each of which has a specific role. For an automated SRL system, this means that a model should return the predicates and its argument, for a given input sentence. Here, the arguments are specific roles that participants of an event can take: e.g. agents, patient, instrument, etc. For instance, in the sentence "Vicky helped Goya", "Vicky" is the agent, "Goya" is the patient, and "help" is the predicate.
+
+#### Data description
+In this project, we train an SRL system on data from the Universal Proposition Banks, which is an annotated corpus which uses its own labels for defining the semantic roles, following the Propbank annotation scheme. In this scheme `ARG0` represents the agent, `ARG1` represents the patient, `ARG2` indicates the instrument, `ARGM-MNR` for the manner, `ARGM-LOC` for the location and `ARGM-TMP` for the time.     
+From this dataset, we take a train, dev and test dataset, which are all in English. The annotations in this dataset are a mix of human annotations, machine annotations and machine annotations checked by humans. Even though these annotations cannot technically be considered to be gold, we do refer to them as gold in the rest of our report. 
+
+#### Task description
+We can consider the task to consist of two steps: (i) finding the predicates present in a given sentence, and (ii) extracting and classifying the corresponding arguments for each predicate. 
+In this project, we split up these two tasks, and evaluate the outputs separately with the gold data. More precisely, in taks (i) we implement a rule-based and a machine-learning based predicate extraction method, and compare their outputs to the predicates in the gold data. For this task we must keep in mind that the data is very skewed: the dataset consists of much more non-predicate tokens than predicates.      
+Continuing, we approach task (ii) with a machine learning method using a Support Vector Machine. Here, we use all the tokens as input, together with the respective predicate and additional features that we extract, and aim to predict what argument label belongs to the token. We evaluate our results again against the gold data. This thus means that we do **not** use our outputs for task (i) to train task (ii), rather we include the gold-predicates in task (ii). This means that our scores for task (ii) overestimates the actual scores, as in reality here, our scores for task (ii) can only be as good as our best score for task (i). Again for this task, it is important that we keep in mind that the data is skewed towards non-argument tokens. Finally, for the second task we also implement a neural network using AllenNLP. 
+
+For both task we had to preprocess the data. The steps we took in order to do this are described in the corresponding sections.
 
 ### PREDICATE EXTRACTION
 
@@ -108,6 +117,7 @@ Argument classification is the task to classify and assign argument types of a g
 
 
 #### Used Features and Further Feature Extraction
+In order to use this dataset, we must first preprocess it. In the original datasets, tokens have their own rows, sentences are separated by empty lines, and predicates and their arguments are presented in columns. In the restructured version of the data, the empty lines are taken out, and each token-predicate combination gets its own row. This means that if a sentence contains 10 tokens and 3 predicates, this sentence will be represented over 10 * 3 = 30 rows. If a sentence contains no predicates, it is taken out. 
 To implement the classification, features are extracted from the original (gold) data, and extra features are extracted by using SpaCy to get sentences features. 
 
 ##### Features from original data
