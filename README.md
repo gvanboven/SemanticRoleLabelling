@@ -445,6 +445,7 @@ Overall, it appears that our chosen approach might not be ideal for this task. W
 ----------------------
 ## 3. LSTM-based Neural Network with AllenNLP
 
+#### Theoretical component
 In this section, we give a description of the components of the AllenNLP model:
 
 `DatasetReader`: The `DatasetReader` component of AllenNLP is used to turn raw data into Instances: a datastructure that encompasses input and output. Each instance is composed of a text field representing the input and a label field representing the output. For example, in the case of a text classification task, the text field is formed by an input sentence/document while the label field is a label representing the sentiment category. More specifically the text field of an instance is formulated by tokenising a raw sentence and representing each token with an index.  The label field is simply a label string for that particular sentence/document. 
@@ -457,7 +458,10 @@ In a nutshell the constructor specifies the parameters that are used by the `for
 `Predictor`: As its name suggests the `Predictor` is used for making predictions. It is composed of the `json_to_instance()` function, that takes a raw sentence as input and turns it into a json dictionary using the `DataSetReader`, and the `predict()` function that produces an output json file. However, the `Rredictor` is applied differently when used on labelled compared to unlabelled data. In order to apply the model and make predictions on unlabelled data, the data needs to be encoded as Instances by the `DatasetReader`, with the exception that this time the output/label parameter is not needed, since there are no gold labels. That means, that the pipeline used by the `Predictor` for encoding the test data different from that used to encode the train data. However, they still share the same `DatasetReader`, only that it is adjusted to have the `'label'` parameter as optional. This way, both the train and test data to share the same features and representation parameters and avoid any discrepancies.
 Another difference that distinguishes the predictor from the trainer concerns the forward function. During prediction on unlabelled data, the output dictionary produced by the forward algorithm does not include the loss key, since it is not based on any gold labels to evaluate the output.
 
+#### Implementation
+Our code for our AllenNLP LSTML model can be found in the folder ``.\code\AllenNLPimplementation`. 
 
+We created the file `conll_to_json.py` to restructure the conll data as jsonl data that can be used as input for the `srl_main.py` file, which was provided by Pia Sommerauer, Antske Fokkens and José Angel Daza.
 
 After running our models, we get the following output:
 
