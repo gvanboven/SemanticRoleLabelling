@@ -9,7 +9,7 @@ import sys
 
 def get_path(sent_data, current_token_index, predicate_index, path_length):
     """
-    Recursice function that returns for a given token and predicate wether the former is a descendant of the latter,
+    Recursive function that returns for a given token and predicate wether the former is a descendant of the latter,
     and if so the length of the path between the two. If the token is NOT a descendent of the latter, the path_length
     that is returned is 100.
     :param sent_data: a list of all the data of the current sentence
@@ -71,9 +71,6 @@ def extract_extra_features(sentence_string):
                               str(token.head.text),
                               str(pre_token),
                               str(pre_pos)]
-                              #list(token.children), # adapted code from group 7 Konstantina Andronikou, Lahorka Nikolovski, Mira Reisinger
-                              #list(token.subtree)] # this is the phrase # adapted code from group 7 Konstantina Andronikou, Lahorka Nikolovski, Mira Reisinger
-                              ##############ADD SOME PREDICATE FEATURES HERE
 
             sent_features.append(extra_features)
     return sent_features # a list

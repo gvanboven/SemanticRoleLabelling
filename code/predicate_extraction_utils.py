@@ -133,7 +133,7 @@ def new_dataset(input_file, output_file):
         sent_rows.append(datapoint)
 
     #write the new rows into a new file
-    with open(output_file, 'w' ) as outfile:
+    with open(output_file, 'w', encoding="utf8") as outfile:
         writer = csv.writer(outfile, delimiter = '\t', lineterminator='\n')
         headers = ['sent_id', 'token_id', 'token', 'lemma', 'pos', 'pos_tag', 'prev_token', 'prev_pos', 'dep', 'head', 'label' ]
 
@@ -167,13 +167,13 @@ def read_in_conll_file(conll_file: str, delimiter: str = '\t'):
 
     :returns List of splitted rows included in conll file
     '''
-    my_conll = open(conll_file, 'r')
-    conll_as_csvreader = csv.reader(my_conll, delimiter=delimiter, quotechar = delimiter)
+    with open(conll_file, 'r', encoding='utf8') as infile:
+        conll_data = infile.readlines()
     rows = []
-    for row in conll_as_csvreader:
+    for row in conll_data:
         if row != []:
-            rows.append(row)
-    #print(rows[0])
+            rows.append(row.replace('\n','').split('\t'))
+
     #We prune the dataset
     pruned_rows = pruning(rows[1:])
     return pruned_rows

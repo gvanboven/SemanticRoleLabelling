@@ -1,9 +1,9 @@
 import jsonlines
 
 #the paths to the data in our repository. Change the paths if you want to convert files in different locations
-TRAINFILE = "../../data/srl_univprop_en.train.conll" 
-DEVFILE = "../../data/srl_univprop_en.dev.conll"
-TESTFILE = "../../data/srl_univprop_en.test.conll"
+TRAINFILE = "../../data/en_ewt-up-train.conllu" 
+DEVFILE = "../../data/en_ewt-up-dev.conllu" 
+TESTFILE = "../../data/en_ewt-up-test.conllu" 
 
 #the output paths to where our data will be stored. 
 # Change the paths if you want the store the files at a different location or with a different name

@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-
 import sys
 import argument_prediction
 import feature_extraction
-import predicate_prediction
+import predicate_extraction
 import evaluate
-import predicate_prediction
 
 
 def main(argv=None):
@@ -17,9 +12,8 @@ def main(argv=None):
         This new dataset will be named '[trainingfilename]_features.conll'
     ii. extracts the predicates of the test sentences using a rule-based method, and evaluates the performance
     iii. trains a SVM classifier to predict the agruments, uses this model to make predictions on the test data and evaluates the predictions
-    The predicate and argument predictions will be added to the dataset created in step i) and saved as new datasets.
-    The names of these datasets will be '[trainingfilename]_features_predicate_predictions.conll' and
-    '[trainingfilename]_features_argument_predictions.conll' respectively.
+    The argument predictions will be added to the dataset created in step i) and saved as new datasets.
+    The names of this datasets will be '[trainingfilename]_features_argument_predictions.conll'.
     :param my_arg : a list containing the following parameters:
                     args[1] : the path (str) to the conll training data
                     args[2] : the path (str) to the conll test data
@@ -49,17 +43,15 @@ def main(argv=None):
     #create paths to the output files in which the features and predictions should be saved
     train_features_output_path = trainingfile.replace('.conll','_features.conll')
     test_features_output_path = testfile.replace('.conll', '_features.conll')
-    predicate_predictions_output_path = test_features_output_path.replace('.conll', '_' + str(n_rows) + '_predicate_predictions.conll')
     argument_predictions_output_path = test_features_output_path.replace('.conll', '_' + str(n_rows) + '_argument_predictions.conll')
 
-    #extract the features of the train and test data
     print("extract train features")
     feature_extraction.main(['', trainingfile, train_features_output_path])
     print("extract test features")
     feature_extraction.main(['', testfile, test_features_output_path])
 
     #make predicate predictions on the test data and evaluate
-    predicate_prediction.main(trainingfile, testfile)
+    predicate_extraction.main(['', trainingfile, testfile])
 
     #train argument classifier, create predictions on the test data and evaluate
     print('argument prediction')

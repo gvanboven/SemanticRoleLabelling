@@ -10,7 +10,7 @@ For both evaluations, the results (in terms of precision, recall and F1 score) w
 This file can be called as follows:    
 `python .\main.py '[conll_train_file_path]', '[conll_test_file_path]' [number_of_included_rows] [selected features]`
 as for example:
-`'python main.py '../data/srl_univprop_en.train.conll' '../data/srl_univprop_en.dev.conll' 100'`
+`'python main.py '../data/en_ewt-up-train.conllu' '../data/en_ewt-up-dev.conllu' 100'`
 Here the [conll_train_file_path] is the path to the conll training data, and [conll_test_file_path] is the path to the conll test data.   
 `[number_of_included_rows]` indicated the number of rows from that should be included in training and testing. This should be an integer. If all rows should be included in training and testing, the input for this argument should be `'all'`. The reason we included this argument is because the training dataset is very large and when using this dataset for training the argument prediction model it might take very long to train, or cause memory errors.    
 Finally, there is an optional feature `[selected features]`, which to allows to select a subset of the features we extract to be included in argument prediction. The features should be writting as a string of selected features separated by spaces, as in the example above. If this is not defined, the following features will be used (see the description for `feature_extraction.py` for further details on these features): `token_index`, `token`, `head_lemma`, `predicate_descendant`, `path_to_predicate_length`,  `pos`, `postag`, `prev_token`, `prev_pos`, `dependency`, `head_text`, `predicate_lemma`, `predicate_index`, `predicate_pos`, `predicate_dependency`.
@@ -43,7 +43,7 @@ ii. It extracts additional features for the tokens and the predicates, and adds 
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_input_file_path]' '[conll_output_file_path]'`    
 as for instance      
-`python feature_extraction.py '../data/srl_univprop_en.dev.conll' '../data/srl_univprop_en.dev_features.conll'`
+`python feature_extraction.py '../data/en_ewt-up-train.conllu' '../data/en_ewt-up-train_features.conllu'`
 where `[conll_input_file_path]` is the original conll data file, and `[conll_output_file_path]` is the path where the extracted data will be saved.
 
 
@@ -62,7 +62,7 @@ This file creates and trains an SVM on the training data, makes predictions on t
 This file can be run as follows:    
 `python .\feature_extraction.py '[conll_train_file_path]' '[conll_test_file_path]' '[conll_output_file_path]' [number_of_included_rows] [selected features]`    
 as for instance
-`python argument_prediction.py '../data/srl_univprop_en.train_features.conll' '../data/srl_univprop_en.test_features.conll' '../data/srl_univprop_en.test_predictions.conll'  1000  "token head_lemma predicate_lemma"`
+`python argument_prediction.py '../data/en_ewt-up-train_features.conllu' '../data/en_ewt-up-test_features.conllu' '../data/en_ewt-up-test_predictions.conllu'  1000  "token head_lemma predicate_lemma"`
 where `[conll_train_file_path]` is the conll training data, `[conll_test_file_path]` is the conll test data, and `[conll_output_file_path]` is the path to where the predictions will be saved.
 `[number_of_included_rows]` indicated the number of rows from that should be included in training and testing. This should be an integer. If all rows should be included in training and testing, the input for this argument should be `'all'`. The reason we included this argument is because the training dataset is very large and when using this dataset for training the argument prediction model it might take very long to train, or cause memory errors.    
 Finally, there is an optional feature `[selected features]`, which to allows to select a subset of the features we extract to be included in argument prediction. The features should be writting as a string of selected features separated by spaces, as in the example above. If this is not defined, the following features will be used: `token_index`, `token`, `head_lemma`, `predicate_descendant`, `path_to_predicate_length`,  `pos`, `postag`, `prev_token`, `prev_pos`, `dependency`, `head_text`, `predicate_lemma`, `predicate_index`, `predicate_pos`, `predicate_dependency`.
@@ -76,7 +76,7 @@ Additionally, the precision, recall and F1 are computed per class, and a table i
 This code was based on code provided for the course Machine Learning for NLP by Antske Fokkens and José Angel Daza.
 
 This file can be run as follows:    
-`python .\feature_extraction.py '[conll_input_file_path]' [gold_index] [predictions_index]`    
+`python .\feature_extraction.py '[conllu_input_file_path]' [gold_index] [predictions_index]`    
 as for instance
-`python evaluate.py '../data/SRL_argument_test_predictions.conll' -2 -1`
+`python evaluate.py '../data/en_ewt-up-test_predictions.conllu' -2 -1`
 Where `'[conll_input_file_path]'` is the file  that contains the gold labels and the predictions, `[gold_index]` the index of the column in which the gold annotations can be found, and `[predictions_index]` is the index of the column that contains the machine predictions.

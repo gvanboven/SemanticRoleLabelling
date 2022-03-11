@@ -57,8 +57,8 @@ def main(argv=None):
     dev_path = argv[2]
 
     #we define the output files for our fixed datasets
-    train_fixed_path = train_path.replace('train.conllu', 'train.fixed.conllu')
-    dev_fixed_path = dev_path.replace('dev.conllu', 'dev.fixed.conlu')
+    train_fixed_path = train_path.replace('.conllu', '.fixed.conllu')
+    dev_fixed_path = dev_path.replace('.conllu', '.fixed.conllu')
 
     print('Adjusting the datasets for the predicate prediction task...')
     print()
@@ -70,6 +70,7 @@ def main(argv=None):
     #we extract the rows from the datasets and we prune them
     train_lines = read_in_conll_file(train_fixed_path)
     dev_lines = read_in_conll_file(dev_fixed_path)
+
 
     #We predict the predicates using a rule-based method
     predicate_rows = get_distribution(dev_lines)

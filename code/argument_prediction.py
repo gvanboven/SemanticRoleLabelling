@@ -284,11 +284,11 @@ def main(argv=None):
     #defines the column in which each feature is located
     global feature_to_index, embedding_feature_names, integer_features
 
-    feature_to_index = {'token_index':1, 'token':2, 'head_lemma':3, 'predicate_descendant': 4,
-            'path_to_predicate_length':5,  'pos':7, 'postag':8, 'prev_token':9, 'prev_pos': 10, 'dependency':11, 
-            'head_text':12, 'predicate_lemma':13, 'predicate_index':14, 'predicate_pos':15, 
-            'predicate_dependency': 17, 'argument':18}
-    embedding_feature_names = ['token', 'head_lemma', 'prev_token', 'head_text']
+    feature_to_index = {'token_index':1, 'token':2, 'predicate_descendant': 3,
+            'path_to_predicate_length':4,  'pos':6, 'postag':7, 'dependency':8, 'head_text':9, 'prev_token':10, 'prev_pos': 11, 
+            'predicate_lemma':12, 'predicate_index':13, 'predicate_pos':14, 'predicate_postag': 15,
+            'predicate_dependency': 16, 'argument':17}
+    embedding_feature_names = ['token', 'prev_token', 'head_text']
     integer_features = ['token_index', 'path_to_predicate_length', 'predicate_index']
 
     #picking up commandline arguments
