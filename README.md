@@ -459,7 +459,7 @@ In a nutshell the constructor specifies the parameters that are used by the `for
 Another difference that distinguishes the predictor from the trainer concerns the forward function. During prediction on unlabelled data, the output dictionary produced by the forward algorithm does not include the loss key, since it is not based on any gold labels to evaluate the output.
 
 #### Implementation
-Our code for our AllenNLP LSTML model can be found in the folder `.\code\AllenNLPimplementation`. 
+Our code for our AllenNLP LSTML model can be found in the folder `.\code\AllenNLP_LSTM`. 
 
 We created the file `conll_to_json.py` to restructure the conll data as jsonl data that can be used as input for the `srl_main.py` file, which was provided by Pia Sommerauer, Antske Fokkens and José Angel Daza.
 
