@@ -212,36 +212,38 @@ To implement the classification, features are extracted from the original (gold)
 We map through the raw data use the number of tokens to locate the predicate position and other predicate info. The features extracted from the oringinal dasta are the following:
 | Name                     | Description                                                                                                                                                                                                              | Data type        |
 |--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|
-| token index              | the position of the token in the sentence (integer)                                                                                                                                                                      |      integer     |
+| token_index              | the position of the token in the sentence (integer)                                                                                                                                                                      |      integer     |
 | token                    | the token itself (string)                                                                                                                                                                                                |      string      |
 | head_lemma               | the lemma of the head of the token (string)                                                                                                                                                                              |      string      |
-| predicate descendant     | a binary feature, indicating whether the current token is a descendant of the  current predicate (1), or not (0) (integer)                                                                                               | integer (binary) |
-| path to predicate length | the number of steps from the current token to the predicate in the dependency tree,  if there is no direct path to the predicate, the token is not descendant of the predicate  and then the value will be 100 (integer) |      integer     |
+| predicate_descendant     | a binary feature, indicating whether the current token is a descendant of the  current predicate (1), or not (0) (integer)                                                                                               | integer (binary) |
+| path_to_predicate_length | the number of steps from the current token to the predicate in the dependency tree,  if there is no direct path to the predicate, the token is not descendant of the predicate  and then the value will be 100 (integer) |      integer     |
 | predicate_lemma          | the lemma of the current predicate                                                                                                                                                                                       |      string      |
-| predicate index          | token index of the current predicate                                                                                                                                                                                     |      integer     |
+| predicate_index          | token index of the current predicate                                                                                                                                                                                     |      integer     |
 | predicate_pos            | part of speech of the current predicate                                                                                                                                                                                  |      string      |
-| predicate dependency     | dependency label of the current predicate                                                                                                                                                                                |      string      |
+| predicate_dependency     | dependency label of the current predicate                                                                                                                                                                                |      string      |
 
 
 The selection reason of features from original data:
-* We selected token_index, path_to_prediate_length and predicate_index to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. 
-* We seleted token, predicate descendant as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
-* We also provide predicate_pos and predicate_dependency for the model to refer from the pespective of syntax and dependency relation respectively.
+* We selected `token_index`, `path_to_prediate_length` and `predicate_index` to locate the position relation from the aspect of index, assuming that the model will learn the dependceny of sentence by learning the index of tokens and predicates. 
+* We seleted `token`, `predicate_descendant` as corelation so that the model would learn that the relation of the token and predicate from the perspective of tokens.
+* We also provide `predicate_pos` and `predicate_dependency` for the model to refer from the pespective of syntax and dependency relation respectively.
 
 #### Further Feature Extraction
-We concatonate the tokens as sentence and use SpaCy to get further features and map through the sentences to lexical features. 
-* head_text: token of the sentence's root
-* prev_token: previous token of the current token
-* pos: part of speech of the current token
-* postag: pos tag of the current token
-* prev_pos: previous token's part of speech
-* dependency: current token's dependency relation
+We concatenate the tokens as sentence and use SpaCy to get further features and map through the sentences to lexical features. 
+| Name       | Description                                                     | Data type |
+|------------|-----------------------------------------------------------------|-----------|
+| head_text  | token of the head of the current token                          |   string  |
+| prev_token | the token that preceeds the current token                       |   string  |
+| pos        | the Part of Speech of the current token                         |   string  |
+| postag     | the Part of Speech tag of the current token                     |   string  |
+| prev_pos   | the Part of Speech of the token that preceeds the current token |   string  |
+| dependency | the dependency label of the current token                       |   string  |
 
 
 The selection of reasons of the further features:
-* We use the head_text to coordinate with the token, since we only have the predicate_lemma but not lemma for all tokens, when doing feature ablation, we would like to discover whether head_text and token are correlated to help the model distinguish the dependency relation
-* We add prev_token, prev_pos to reveal the correaltion of descendants and predicate from lexical and syntactic perspectives.
-* We provide dependency for every token to reveal relation of the token and predicate from the perspective of dependency relationship. (as supplements for predicate_dependency)
+* We use the `head_text` to coordinate with the token, since we only have the `predicate_lemma` but not lemma for all tokens, when doing feature ablation, we would like to discover whether `head_text` and `token` are correlated to help the model distinguish the dependency relation
+* We add `prev_token`, `prev_pos` to reveal the correlation of descendants and predicate from lexical and syntactic perspectives.
+* We provide dependency for every token to reveal the relation between the token and predicate from the perspective of dependency relationship. (as supplements for `predicate_dependency`)
 
 
 
@@ -249,10 +251,9 @@ The selection of reasons of the further features:
 To train our model, we use a Support Vector Machine (SVM). Pradhan et al. (2005) find good results in SRL prediction using this model, which was an indication for us that it might also yield good results in our case.
 
 #### Results
-Regarding the evaluation of the model, we will concern the recall, precision and F-score for each label and macro and overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
+Regarding the evaluation of the model, we will consider the recall, precision and F-score for each label and macro and overall performance scores: macro precision, macro recall, macro f-score and micro f-score.
 
-We use all features extracted (features from original data and further features). Since the memory to run train all rows in the original dataset requires more than 60GB, we would only use 100000 rows from the original data to do the emperiment and get the results. Feature ablation is also employed in the experiment to compare performance of the models with different features fed in.
-
+We use all features extracted (features from original data and further features). Since the memory to run train all rows in the original dataset requires more than 60GB, and this is too much for our computers, we decided to only use 100.000 rows from the data to train and test our models on. After training a model on all features, we carry out a feature ablation study (see below) to compare performance of models with different features fed in.
 
 
 All Features experiment
@@ -313,7 +314,7 @@ performance scores per class:
 | C-ARGM-LOC     |  0.000  | 0.000   | 0.000 |
 | ARGA           |  0.000  | 0.000   | 0.000 |
 
-* The performance scores of the all features fed in model is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates. Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
+* The performance scores of the model with all features fed is poor and we may need to do some feature ablation experiments to see which feaures are useful for the model to distinguish the dependency relation. Besides, the representations of the features do not strongly reveal the dependency relations between tokens and predicates. Since there are a lots of labels for the model to classify, we will focus on the main arguments of the sentences: ARG0, ARG1, ARG2, ARG4 as they are common in predicate arguments. ARG1 is the most commonly use in predicates arguments classification. In this experiment, ARG0's f-score is 0.504, which is acceptabel but still needs improvement.
 
 Only Predicate Info Features Experiment:
 
