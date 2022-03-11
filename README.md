@@ -39,7 +39,8 @@ Continuing, we approach task (ii) with a machine learning method using a Support
 
 For both task we had to preprocess the data. The steps we took in order to do this are described in the corresponding sections.
 
-### PREDICATE EXTRACTION
+----------------------
+### 1. PREDICATE EXTRACTION
 
 #### Task description
 Predicate extraction is a token binary classification tasks, that tries to predict whether each token in an utterance has the role of the predicate or not. It provides the ground for the argument recognition and classification task, since the predicates provide the stem around which the arguments are formed and acquire meaning.      
@@ -113,8 +114,8 @@ Training and evaluation of the best SVM classifier (word-embeddings + PoS + depe
 In conclusion, the performance of the rule based approach is far better than the ML one. This is mainly because of the highly imbalanced dataset, but especially due to the overlapping of the features in both classes. In other words, the ML systems cannot easily form patterns in the dataset, since the features found in predicates are frequently found also in the rest of the tokens. Future implementation of the task could use more elaborate features, such as constituency labels, the dependency label of the previous and next tokens, the descendants or children of each token, to test whether the results improve.
 
 
-
-### ARGUMENT CLASSIFICATION
+----------------------
+### 2. ARGUMENT CLASSIFICATION
 
 #### Task description
 Argument classification is the task to classify and assign argument types of a given predicate(s) in a sentence based on the the slected features. In this task, we employ a machine learning approach to carry out the classification task. The training and evaluation of the prediction in the task use gold predicates data from the original data. For the features, this task extracts some features from the gold data file and also use SpaCy to extract extra features such as dependency relation and head of the dependency based on the sentences. 
@@ -441,15 +442,15 @@ So we conclude that the task as it currently is is too difficult for our model t
 #### Discussion
 Overall, it appears that our chosen approach might not be ideal for this task. We decided to combine the argument extraction and classification tasks into one step. But as the empty label `_` is highly overrepresented in the data, and all the other labels are much more uncommon, this task might be too difficult for our model to learn. Potentially, a better approach would have been to extract the agruments using a rule-based approach, e.g. by taking those tokens that are direct dependents of the predicate. Continuing we could have trained a machine learning model on only those token that we have extracted to be arguments, to predict the argument label. In this case, the distribution of labels would be less skewed (as there is no `_` label in the data), which might make the classification task less difficult. 
 
+----------------------
+## 3. Neural Network with AllenNLP
 
 
 
 
 
 
-
-
-
+----------------------
 #### References
 Pradhan, S., Ward, W., Hacioglu, K., Martin, J. H., & Jurafsky, D. (2005).
 Semantic role labelingusing different syntactic views.
