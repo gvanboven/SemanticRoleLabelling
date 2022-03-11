@@ -463,17 +463,17 @@ Another difference that distinguishes the predictor from the trainer concerns th
 
 
 After running our models, we get the following output:
-""""
-I am running away from here !
-['I', 'am', 'running', 'away', 'from', 'here', '!']
-	VERB: am | ARGS: ['B-ARG1', 'B-V', 'O', 'O', 'O', 'O', 'O']
-	VERB: running | ARGS: ['B-ARG0', 'O', 'B-V', 'B-ARG1', 'O', 'O', 'O']
 
-The paint and wheels looked like glass and the interior looked new !
-['The', 'paint', 'and', 'wheels', 'looked', 'like', 'glass', 'and', 'the', 'interior', 'looked', 'new', '!']
-	VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'B-V', 'O', 'B-ARG1', 'O', 'O', 'O', 'O', 'O', 'O']
-	VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-ARG0', 'B-V', 'B-ARG1', 'O']
-""""
+    I am running away from here !
+    ['I', 'am', 'running', 'away', 'from', 'here', '!']
+	  VERB: am | ARGS: ['B-ARG1', 'B-V', 'O', 'O', 'O', 'O', 'O']
+	  VERB: running | ARGS: ['B-ARG0', 'O', 'B-V', 'B-ARG1', 'O', 'O', 'O']
+
+    The paint and wheels looked like glass and the interior looked new !
+    ['The', 'paint', 'and', 'wheels', 'looked', 'like', 'glass', 'and', 'the', 'interior', 'looked', 'new', '!']
+	  VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'B-V', 'O', 'B-ARG1', 'O', 'O', 'O', 'O', 'O', 'O']
+	  VERB: looked | ARGS: ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-ARG0', 'B-V', 'B-ARG1', 'O']
+
 
 
 
